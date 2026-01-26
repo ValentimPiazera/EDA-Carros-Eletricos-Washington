@@ -9,7 +9,7 @@ Este projeto realiza uma análise detalhada dos dados de veículos elétricos (B
 Os dados são fornecidos pelo Washington State Department of Licensing (DOL) e estão disponíveis no portal de dados abertos do governo (data.wa.gov). O dataset contém informações sobre:
 
     Localização geográfica (Cidade, Condado, CEP).
-
+    
     Detalhes do veículo (Marca, Modelo, Ano, Tipo).
 
     Especificações técnicas (Autonomia elétrica, elegibilidade de incentivos fiscais).
