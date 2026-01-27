@@ -46,19 +46,33 @@ condado e código postal (Equivalente ao CEP no Brasil).
  ### Colunas
  
 ~~VIN (1-10)~~: Referente ao número do chassi.
+
 **County:** Referente ao condado em que o carro está registrado.
+
 **City:** Referente a cidade em que o carro está registrado.
+
 ~~State~~: Referente ao estado em que o carro está registrado.
+
 ~~Postal Code~~: Referente ao código postal registrado ao veículo, similar ao CEP no Brasil.
+
 **Model Year:** Ano de fabricação do carro.
+
 **Make:** Referente a montadora do veículo.
+
 **Model:** Modelo do carro.
-**Electric Vehicle Type:** Tipo do carro (BEV ou PHEV)
+
+**Electric Vehicle Type:** Tipo do carro (BEV ou PHEV).
+
 ~~Clean Alternative Fuel Vehicle (CAFV) Eligibility~~(depois trocado para o nome: **CAFV Status**): Qual tipo de combustível alternativo o automóvel é compatível.
+
 **Electric Range:** Autonomia do carro, o quanto ele percorre até a bateria acabar.
+
 ~~Legislative District~~: Número/código referente ao distrito legislativo.
-~~DOL Vehicle ID~~: Número de registro do veículos no *DOL*(*Departament of Licensing*, **Departamento de Licenciamento em portugês**), muito similar ao DETRAN no Brasil.
+
+~~DOL Vehicle ID~~: Número de registro do veículos no *DOL*(*Departament of Licensing*, **Departamento de Licenciamento em 
+portugês**), muito similar ao DETRAN no Brasil.
 ~~Vehicle Location~~: Localização do veículo por meio de cordenadas
 **Electric Utility:** Companhia ou local responsável pelo fornecimento de energia aos carros.
+
 ~~2020 Census Tract~~: Um número da própria pesquisa para identificar as linhas, como um código de barras.
 
