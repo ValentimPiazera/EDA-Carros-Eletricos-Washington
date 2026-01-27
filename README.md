@@ -26,10 +26,10 @@ condado e código postal (Equivalente ao CEP no Brasil).
 
 ## **Bibliotecas Utilizadas com link pra documentação**
 
- ###[**Pandas**](https://pandas.pydata.org/docs/)
+ ### [**Pandas**](https://pandas.pydata.org/docs/)
 
 
-###[**Numpy**](https://numpy.org/doc/2.4/)
+### [**Numpy**](https://numpy.org/doc/2.4/)
 
 
-###[**Plotly**](https://plotly.com/python/)
+### [**Plotly**](https://plotly.com/python/)
