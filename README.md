@@ -6,7 +6,7 @@ Este projeto realiza uma análise detalhada dos dados de veículos elétricos (B
 
 ## **2. Origem dos Dados**
 
-Os dados são fornecidos pelo Washington State Department of Licensing (DOL) e estão disponíveis no portal de dados abertos do governo (data.wa.gov). O dataset contém informações sobre:
+Os dados são fornecidos pelo Washington State Department of Licensing (DOL) e estão disponíveis no portal de dados abertos do governo [Site do governo de Washington](data.wa.gov). O dataset contém informações sobre:
 
     Localização geográfica (Cidade, Condado, CEP).
     
