@@ -37,11 +37,13 @@ condado e código postal (Equivalente ao CEP no Brasil).
 ## Convenções Utilizadas
 
 *Itálico:* Para palavras estrangeiras ou termos técnicos.
+
 *Negrito:** Para informações importantes.
+
 ~~Riscado:~~ Para valores, colunas ou qualquer coisa que posteriormente removido.
 
-## Banco de Palavras e Colunas:
- Devido ao *dataset* original ser em inglês achei de bom grado traduzir e apontar o significado de cada coluna; Além de um banco de palavras para as que estão em *Itálico* ao longo dos *notebooks*:
+## Banco de Colunas:
+ Devido ao *dataset* original ser em inglês achei de bom grado traduzir e apontar o significado de cada coluna.
 
  ### Colunas
  
@@ -72,7 +74,24 @@ condado e código postal (Equivalente ao CEP no Brasil).
 ~~DOL Vehicle ID~~: Número de registro do veículos no *DOL*(*Departament of Licensing*, **Departamento de Licenciamento em 
 portugês**), muito similar ao DETRAN no Brasil.
 ~~Vehicle Location~~: Localização do veículo por meio de cordenadas
+
 **Electric Utility:** Companhia ou local responsável pelo fornecimento de energia aos carros.
 
 ~~2020 Census Tract~~: Um número da própria pesquisa para identificar as linhas, como um código de barras.
+
+ ### Banco de Palavras
+
+ **Notebook** ou **Notebooks:** Se trata do arquivo utilizado para rodar os códigos, no caso o **Jupyter Notebook**
+
+ **DOL:** *Departament of licesing*
+
+## Fim
+
+Bem esses foram todos os avisos, do fundo do meu coração eu espero que goste do conteúdo a seguir, se trata do meu primeiro projeto feito com intenção de postar no *Github* após meses de estudo sobre *python*, *pandas*, *plotagem* e assuntos nescessários para uma *EDA*. O projeto possui "apenas" limpeza, transformação, plotagem e análises dos dados, não possui um modelo de *Machine learning* pois embora muito goste e admire a área, pouco sei sobre ela; talvez no futuro com os conhecimentos adquiridos posso retornar a esse projeto e fazer um modelo de predição.
+
+Sei que esse *dataset* é muito popular entre a comunidade de dados, porém não consultei ou peguei emprestado nenhum trecho de código, conclusão ou ideia de nenhum outro projeto, nem sequer verifiquei outros projetos com o mesmo *dataset*, pois queria que fosse algo único (embora devem existir projetos muito melhores do que esse).
+
+É isso, aproveite o projeto a seguir, seja você um amigo, recrutador, curioso ou de qualquer tribo ou espécie; também sinta-se livre para subir *issues* sobre o projeto, qualquer coisa mesmo, seja um simples erro de grafia ou até um erro mais grave (Visto que fiz tudo por conta própria, e por mais que revise muitas vezes, algo irá passar despercebido).
+
+
 
