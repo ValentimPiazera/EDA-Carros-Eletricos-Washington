@@ -71,12 +71,6 @@ portugês**), muito similar ao DETRAN no Brasil.
 
 ~~2020 Census Tract~~: Um número da própria pesquisa para identificar as linhas, como um código de barras.
 
- ### Banco de Palavras
-
- **Notebook** ou **Notebooks:** Se trata do arquivo utilizado para rodar os códigos, no caso o **Jupyter Notebook**
-
- **DOL:** *Departament of licesing*
-
 ## **Aviso PLotly!**
 
  O Plotly possui uma característica única quando rodado no terminal do *jupyter*, ele permite dar zoom e interagir com os gráficos, por esse motivo é bem provável que ao visualizar os *notebooks* pelo github as imagens não aparecerem, mas todas estão presentes na pasta imagens, porém recomendo rodar localmente em sua máquina, pois as imagens são estáticas.
