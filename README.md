@@ -26,9 +26,6 @@ O dataset contém informações sobre:
 ## **Bibliotecas Utilizadas**
 ### Clique para acessar a documentação
 
-**Pandas**
-**Numpy**
-**Plotly**
-****
-****
-    
+ [**Pandas**](https://pandas.pydata.org/docs/)
+ [**Numpy**](https://numpy.org/doc/2.4/)
+ [**Plotly**](https://plotly.com/python/)
