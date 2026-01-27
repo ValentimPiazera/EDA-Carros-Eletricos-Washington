@@ -1,18 +1,10 @@
 # **Introdução**
 
- Este projeto realiza uma limpeza, modelagem e análise dos dados de veículos elétricos (BEVs e PHEVs) registrados no estado de Washington. O objetivo é entender a adoção de tecnologias de transporte limpo e as tendências de mercado dos fabricantes.
+ Este projeto realiza uma limpeza, trnasformação, plotagem e análise dos dados de veículos elétricos (BEVs e PHEVs) registrados no estado de Washington. O objetivo é entender a adoção de tecnologias de transporte limpo e as tendências de mercado dos fabricantes.
 
 ## **Origem dos Dados**
 
  Os dados são fornecidos pelo Washington State Department of Licensing (DOL) e estão disponíveis no portal de dados abertos do governo de Washington: [Site do governo de Washington](data.wa.gov). 
-O dataset contém informações sobre:
-
- **Localização geográfica:** Cidade,
-condado e código postal (Equivalente ao CEP no Brasil).
-
- **Detalhes do veículo:** Marca, modelo e ano.
-
- **Especificações técnicas:** Autonomia elétrica, elegibilidade de incentivos combustíveis alternativos e fornecedor de energia.
 
 ## **Objetivos da Principais da Análise**
 
@@ -87,7 +79,7 @@ portugês**), muito similar ao DETRAN no Brasil.
 
 ## Fim
 
-Bem esses foram todos os avisos, do fundo do meu coração eu espero que goste do conteúdo a seguir, se trata do meu primeiro projeto feito com intenção de postar no *Github* após meses de estudo sobre *python*, *pandas*, *plotagem* e assuntos nescessários para uma *EDA*. O projeto possui "apenas" limpeza, transformação, plotagem e análises dos dados, não possui um modelo de *Machine learning* pois embora muito goste e admire a área, pouco sei sobre ela; talvez no futuro com os conhecimentos adquiridos posso retornar a esse projeto e fazer um modelo de predição.
+Bem esses foram todos os avisos, do fundo do meu coração eu espero que goste do conteúdo a seguir, se trata do meu primeiro projeto feito com intenção de postar no *Github* após meses de estudo sobre *python*, *pandas*, *plotagem* e assuntos nescessários para uma *EDA*. O projeto possui "apenas" limpeza, transformação, plotagem e análises dos dados, não possui um modelo de *Machine learning*, pois embora muito goste e admire a área, pouco sei sobre; talvez no futuro com os conhecimentos nescessários posso retornar a esse projeto e fazer um modelo de predição.
 
 Sei que esse *dataset* é muito popular entre a comunidade de dados, porém não consultei ou peguei emprestado nenhum trecho de código, conclusão ou ideia de nenhum outro projeto, nem sequer verifiquei outros projetos com o mesmo *dataset*, pois queria que fosse algo único (embora devem existir projetos muito melhores do que esse).
 
