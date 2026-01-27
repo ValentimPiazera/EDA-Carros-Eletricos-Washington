@@ -71,7 +71,7 @@ portugês**), muito similar ao DETRAN no Brasil.
 
 ## **Aviso Plotly!**
 
- O Plotly possui uma característica única quando rodado no terminal do *jupyter*, ele permite dar zoom e interagir com os gráficos, por esse motivo é bem provável que ao visualizar os *notebooks* pelo github as imagens não aparecerem, mas todas estão presentes na pasta imagens, porém recomendo rodar localmente em sua máquina, pois as imagens são estáticas.
+ O Plotly possui uma característica única quando rodado no terminal do *jupyter*, ele permite dar zoom e interagir com os gráficos, por esse motivo é bem provável que ao visualizar os *notebooks* pelo github as imagens não aparecerem, mas todas estão presentes na pasta imagens, porém recomendo rodar localmente em sua máquina, pois as imagens são estáticas (recomendo fortemente não usar o *png* para os *scatter plots*).
 
 ## Fim
 
