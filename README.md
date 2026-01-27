@@ -7,7 +7,8 @@
  Os dados são fornecidos pelo Washington State Department of Licensing (DOL) e estão disponíveis no portal de dados abertos do governo de Washington: [Site do governo de Washington](data.wa.gov). 
 O dataset contém informações sobre:
 
- **Localização geográfica:** Cidade, Clcondado e código postal (Equivalente ao CEP no Brasil).
+ **Localização geográfica:** Cidade,
+condado e código postal (Equivalente ao CEP no Brasil).
 
  **Detalhes do veículo:** Marca, modelo e ano.
 
@@ -23,9 +24,12 @@ O dataset contém informações sobre:
 
  **Localização:** Quais cidades possuem a maior densidade de veículos elétricos?
 
-## **Bibliotecas Utilizadas**
-### Clique para acessar a documentação
+## **Bibliotecas Utilizadas com link pra documentação**
 
- [**Pandas**](https://pandas.pydata.org/docs/)
- [**Numpy**](https://numpy.org/doc/2.4/)
- [**Plotly**](https://plotly.com/python/)
+ ###[**Pandas**](https://pandas.pydata.org/docs/)
+
+
+###[**Numpy**](https://numpy.org/doc/2.4/)
+
+
+###[**Plotly**](https://plotly.com/python/)
