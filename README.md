@@ -77,6 +77,10 @@ portugês**), muito similar ao DETRAN no Brasil.
 
  **DOL:** *Departament of licesing*
 
+## **Aviso PLotly!**
+
+ O Plotly possui uma característica única quando rodado no terminal do *jupyter*, ele permite dar zoom e interagir com os gráficos, por esse motivo é bem provável que ao visualizar os *notebooks* pelo github as imagens não aparecerem, mas todas estão presentes na pasta imagens, porém recomendo rodar localmente em sua máquina, pois as imagens são estáticas.
+
 ## Fim
 
 Bem esses foram todos os avisos, do fundo do meu coração eu espero que goste do conteúdo a seguir, se trata do meu primeiro projeto feito com intenção de postar no *Github* após meses de estudo sobre *python*, *pandas*, *plotagem* e assuntos nescessários para uma *EDA*. O projeto possui "apenas" limpeza, transformação, plotagem e análises dos dados, não possui um modelo de *Machine learning*, pois embora muito goste e admire a área, pouco sei sobre; talvez no futuro com os conhecimentos nescessários posso retornar a esse projeto e fazer um modelo de predição.
