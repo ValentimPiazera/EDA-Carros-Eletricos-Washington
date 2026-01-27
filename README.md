@@ -22,4 +22,11 @@ O dataset contém informações sobre:
  **Autonomia Média:** Qual a evolução da capacidade das baterias por ano do modelo?
 
  **Localização:** Quais cidades possuem a maior densidade de veículos elétricos?
+
+## **Bibliotecas Utilizadas**
+
+**Pandas**
+**Numpy**
+**Plotly**
+****
     
