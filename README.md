@@ -1,4 +1,4 @@
-## **1. Introdução**
+# **1. Introdução**
 
  Este projeto realiza uma limpeza, modelagem e análise dos dados de veículos elétricos (BEVs e PHEVs) registrados no estado de Washington. O objetivo é entender a adoção de tecnologias de transporte limpo e as tendências de mercado dos fabricantes.
 
@@ -7,19 +7,19 @@
  Os dados são fornecidos pelo Washington State Department of Licensing (DOL) e estão disponíveis no portal de dados abertos do governo fe Washington: [Site do governo de Washington](data.wa.gov). 
 O dataset contém informações sobre:
 
-    Localização geográfica (Cidade, Condado e Código postal (Equivalente ao CEP no Brasil)).
-    
-    Detalhes do veículo (Marca, modelo e ano).
+ Localização geográfica (Cidade, Condado e Código postal (Equivalente ao CEP no Brasil)).
 
-    Especificações técnicas (Autonomia elétrica, elegibilidade de incentivos combustíveis alternativos e fornecedor de energia).
+ Detalhes do veículo (Marca, modelo e ano).
+
+ Especificações técnicas (Autonomia elétrica, elegibilidade de incentivos combustíveis alternativos e fornecedor de energia).
 
 ## **3. Objetivos da Análise**
 
-    **Crescimento temporal:** Como a adoção de EVs evoluiu ao longo dos anos?
+ **Crescimento temporal:** Como a adoção de EVs evoluiu ao longo dos anos?
 
-    **Distribuição por Fabricante:** Quais marcas dominam a frota?
+ **Distribuição por Fabricante:** Quais marcas dominam a frota?
 
-    **Autonomia Média:** Qual a evolução da capacidade das baterias por ano do modelo?
+ **Autonomia Média:** Qual a evolução da capacidade das baterias por ano do modelo?
 
-    **Localização:** Quais cidades possuem a maior densidade de veículos elétricos?
+ **Localização:** Quais cidades possuem a maior densidade de veículos elétricos?
     
