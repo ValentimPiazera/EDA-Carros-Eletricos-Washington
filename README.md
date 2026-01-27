@@ -4,7 +4,7 @@
 
 ## **2. Origem dos dados**
 
- Os dados são fornecidos pelo Washington State Department of Licensing (DOL) e estão disponíveis no portal de dados abertos do governo fe Washington: [Site do governo de Washington](data.wa.gov). 
+ Os dados são fornecidos pelo Washington State Department of Licensing (DOL) e estão disponíveis no portal de dados abertos do governo de Washington: [Site do governo de Washington](data.wa.gov). 
 O dataset contém informações sobre:
 
  **Localização geográfica:** Cidade, Clcondado e código postal (Equivalente ao CEP no Brasil).
