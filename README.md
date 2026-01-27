@@ -34,10 +34,8 @@
 
 ~~Riscado:~~ Para valores, colunas ou qualquer coisa que posteriormente removido.
 
-## Banco de Colunas:
+## Explicação das Colunas:
  Devido ao *dataset* original ser em inglês achei de bom grado traduzir e apontar o significado de cada coluna.
-
- ### Colunas
  
 ~~VIN (1-10)~~: Referente ao número do chassi.
 
@@ -71,7 +69,7 @@ portugês**), muito similar ao DETRAN no Brasil.
 
 ~~2020 Census Tract~~: Um número da própria pesquisa para identificar as linhas, como um código de barras.
 
-## **Aviso PLotly!**
+## **Aviso Plotly!**
 
  O Plotly possui uma característica única quando rodado no terminal do *jupyter*, ele permite dar zoom e interagir com os gráficos, por esse motivo é bem provável que ao visualizar os *notebooks* pelo github as imagens não aparecerem, mas todas estão presentes na pasta imagens, porém recomendo rodar localmente em sua máquina, pois as imagens são estáticas.
 
