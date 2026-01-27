@@ -7,11 +7,11 @@
  Os dados são fornecidos pelo Washington State Department of Licensing (DOL) e estão disponíveis no portal de dados abertos do governo fe Washington: [Site do governo de Washington](data.wa.gov). 
 O dataset contém informações sobre:
 
- Localização geográfica (Cidade, Clcondado e código postal (Equivalente ao CEP no Brasil)).
+ **Localização geográfica:** Cidade, Clcondado e código postal (Equivalente ao CEP no Brasil).
 
- Detalhes do veículo (Marca, modelo e ano).
+ **Detalhes do veículo:** Marca, modelo e ano.
 
- Especificações técnicas (Autonomia elétrica, elegibilidade de incentivos combustíveis alternativos e fornecedor de energia).
+ **Especificações técnicas:** Autonomia elétrica, elegibilidade de incentivos combustíveis alternativos e fornecedor de energia.
 
 ## **3. Objetivos da principais da análise**
 
