@@ -53,7 +53,7 @@
 
 **Model:** Modelo do carro.
 
-**Electric Vehicle Type:** Tipo do carro (BEV ou PHEV).
+**Electric Vehicle Type:** Tipo do carro (BEV: Totalmente elétrico ou PHEV: Híbrido).
 
 ~~Clean Alternative Fuel Vehicle (CAFV) Eligibility~~(depois trocado para o nome: **CAFV Status**): O veículo é apto a receber o incentivo fiscal? apenas veículos com autonomia superior ou igual a 30 milhas se encaixam.
 
