@@ -30,12 +30,12 @@
 
 *Itálico:* Para palavras estrangeiras ou termos técnicos.
 
-*Negrito:** Para informações importantes.
+**Negrito:** Para informações importantes.
 
 ~~Riscado:~~ Para valores, colunas ou qualquer coisa que posteriormente removido.
 
 ## Explicação das Colunas:
- Devido ao *dataset* original ser em inglês achei de bom grado traduzir e apontar o significado de cada coluna.
+ Devido ao *dataset* original ser em inglês achei de nescessário traduzir e apontar o significado de cada coluna.
  
 ~~VIN (1-10)~~: Referente ao número do chassi.
 
