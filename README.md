@@ -55,7 +55,7 @@
 
 **Electric Vehicle Type:** Tipo do carro (BEV ou PHEV).
 
-~~Clean Alternative Fuel Vehicle (CAFV) Eligibility~~(depois trocado para o nome: **CAFV Status**): Qual tipo de combustível alternativo o automóvel é compatível.
+~~Clean Alternative Fuel Vehicle (CAFV) Eligibility~~(depois trocado para o nome: **CAFV Status**): O veículo é apto a receber o incentivo fiscal? apenas veículos com autonomia superior ou igual a 30 milhas se encaixam.
 
 **Electric Range:** Autonomia do carro, o quanto ele percorre até a bateria acabar.
 
@@ -71,7 +71,7 @@ portugês**), muito similar ao DETRAN no Brasil.
 
 ## **Aviso Plotly!**
 
- O Plotly possui uma característica única quando rodado no terminal do *jupyter*, ele permite dar zoom e interagir com os gráficos, por esse motivo é bem provável que ao visualizar os *notebooks* pelo github as imagens não aparecerem, mas todas estão presentes na pasta imagens, porém recomendo rodar localmente em sua máquina, pois as imagens são estáticas (recomendo fortemente não usar o *png* para os *scatter plots*).
+ O Plotly possui uma característica única quando rodado no terminal do *jupyter*, ele permite dar zoom e interagir com os gráficos, por esse motivo é bem provável que ao visualizar os *notebooks* pelo github as imagens não aparecerem, mas todas estão presentes na pasta imagens, porém recomendo rodar localmente em sua máquina ou em uma plataforma como o [**Google Colab**](https://colab.research.google.com/), pois as imagens são estáticas (recomendo fortemente não usar o *png* para os *scatter plots* e *treemaps*).
 
 ## Fim
 
