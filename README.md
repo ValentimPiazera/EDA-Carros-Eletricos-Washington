@@ -6,7 +6,7 @@
 
  Os dados são fornecidos pelo Washington State Department of Licensing (DOL) e estão disponíveis no portal de dados abertos do governo de Washington: [Site do governo de Washington](data.wa.gov). 
 
-## **Objetivos da Principais da Análise**
+## **Objetivos Principais da Análise**
 
  **Crescimento temporal:** Como a adoção de EVs evoluiu ao longo dos anos?
 
