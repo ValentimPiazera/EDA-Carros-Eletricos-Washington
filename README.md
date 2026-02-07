@@ -81,11 +81,11 @@ portugês**), muito similar ao DETRAN no Brasil.
 ---
 ## Fim
 
-Bem esses foram todos os avisos, do fundo do meu coração eu espero que goste do conteúdo a seguir, se trata do meu primeiro projeto feito com intenção de postar no *Github* após meses de estudo sobre *python*, *pandas*, *plotagem* e assuntos nescessários para uma *EDA*. O projeto possui "apenas" limpeza, transformação, plotagem e análises dos dados, não possui um modelo de *Machine learning*, pois embora muito goste e admire a área, pouco sei sobre; talvez no futuro com os conhecimentos nescessários posso retornar a esse projeto e fazer um modelo de predição.
+Bem esses foram todos os avisos, espero que goste do conteúdo a seguir, se trata do meu primeiro projeto feito com intenção de postar no *Github* após meses de estudo sobre *python*, *pandas*, *plotagem* e assuntos nescessários para uma *EDA*. O projeto possui "apenas" limpeza, transformação, plotagem e análises dos dados, não possui um modelo de *Machine learning*, pois embora muito goste e admire a área, pouco sei sobre; talvez no futuro com os conhecimentos nescessários posso retornar a esse projeto e fazer um modelo de predição.
 
 Sei que esse *dataset* é muito popular entre a comunidade de dados, porém não consultei ou peguei emprestado nenhum trecho de código, conclusão ou ideia de nenhum outro projeto, nem sequer verifiquei outros projetos com o mesmo *dataset*, pois queria que fosse algo único (embora devem existir projetos muito melhores do que esse).
 
-É isso, aproveite o projeto a seguir, seja você um amigo, recrutador, curioso ou de qualquer tribo ou espécie; também sinta-se livre para subir *issues* sobre o projeto, qualquer coisa mesmo, seja um simples erro de grafia ou até um erro mais grave (Visto que fiz tudo por conta própria, e por mais que revise muitas vezes, algo irá passar despercebido).
+É isso, aproveite o projeto a seguir, também sinta-se livre para subir *issues* sobre o projeto, qualquer coisa mesmo, seja um simples erro de grafia ou até um erro mais grave (Visto que fiz tudo por conta própria, e por mais que revise muitas vezes, algo irá passar despercebido).
 
 ---
 
