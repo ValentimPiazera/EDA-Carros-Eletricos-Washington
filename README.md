@@ -1,6 +1,6 @@
 # Introdução
 
- Este projeto realiza uma limpeza, trnasformação, plotagem e análise dos dados de veículos elétricos (BEVs e PHEVs) registrados no estado de Washington. O objetivo é entender a adoção de tecnologias de transporte limpo e as tendências de mercado dos fabricantes.
+ Este projeto realiza uma limpeza, transformação, plotagem e análise dos dados de veículos elétricos (BEVs e PHEVs) registrados no estado de Washington. O objetivo é entender a adoção de tecnologias de transporte limpo e as tendências de mercado dos fabricantes.
 
 ---
 ## Origem dos Dados
