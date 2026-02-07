@@ -1,12 +1,14 @@
-# **Introdução**
+# Introdução
 
  Este projeto realiza uma limpeza, trnasformação, plotagem e análise dos dados de veículos elétricos (BEVs e PHEVs) registrados no estado de Washington. O objetivo é entender a adoção de tecnologias de transporte limpo e as tendências de mercado dos fabricantes.
 
-## **Origem dos Dados**
+---
+## Origem dos Dados
 
  Os dados são fornecidos pelo Washington State Department of Licensing (DOL) e estão disponíveis no portal de dados abertos do governo de Washington: [Site do governo de Washington](data.wa.gov). 
 
-## **Objetivos Principais da Análise**
+---
+## Objetivos Principais da Análise
 
  **Crescimento temporal:** Como a adoção de EVs evoluiu ao longo dos anos?
 
@@ -16,15 +18,15 @@
 
  **Localização:** Quais cidades possuem a maior densidade de veículos elétricos?
 
-## **Documentações das Bibliotecas Utilizadas**
+ ---
 
- ### [**Pandas**](https://pandas.pydata.org/docs/)
+## Documentações das Bibliotecas Utilizadas
 
+ * [Pandas](https://pandas.pydata.org/docs/)
+ * [Numpy](https://numpy.org/doc/2.4/)
+ * [Plotly](https://plotly.com/python/)
 
-### [**Numpy**](https://numpy.org/doc/2.4/)
-
-
-### [**Plotly**](https://plotly.com/python/)
+---
 
 ## Convenções Utilizadas
 
@@ -34,6 +36,7 @@
 
 ~~Riscado:~~ Para valores, colunas ou qualquer coisa que posteriormente removido.
 
+---
 ## Explicação das Colunas:
  Devido ao *dataset* original ser em inglês achei de nescessário traduzir e apontar o significado de cada coluna.
  
@@ -69,10 +72,13 @@ portugês**), muito similar ao DETRAN no Brasil.
 
 ~~2020 Census Tract~~: Um número da própria pesquisa para identificar as linhas, como um código de barras.
 
-## **Aviso Plotly!**
+---
+
+## Aviso Plotly!
 
  O Plotly possui uma característica única quando rodado no terminal do *jupyter*, ele permite dar zoom e interagir com os gráficos, por esse motivo é bem provável que ao visualizar os *notebooks* pelo github as imagens não aparecerem, mas todas estão presentes na pasta imagens, porém recomendo rodar localmente em sua máquina ou em uma plataforma como o [**Google Colab**](https://colab.research.google.com/), pois as imagens são estáticas (recomendo fortemente não usar o *png* para os *scatter plots* e *treemaps*).
 
+---
 ## Fim
 
 Bem esses foram todos os avisos, do fundo do meu coração eu espero que goste do conteúdo a seguir, se trata do meu primeiro projeto feito com intenção de postar no *Github* após meses de estudo sobre *python*, *pandas*, *plotagem* e assuntos nescessários para uma *EDA*. O projeto possui "apenas" limpeza, transformação, plotagem e análises dos dados, não possui um modelo de *Machine learning*, pois embora muito goste e admire a área, pouco sei sobre; talvez no futuro com os conhecimentos nescessários posso retornar a esse projeto e fazer um modelo de predição.
@@ -80,6 +86,8 @@ Bem esses foram todos os avisos, do fundo do meu coração eu espero que goste d
 Sei que esse *dataset* é muito popular entre a comunidade de dados, porém não consultei ou peguei emprestado nenhum trecho de código, conclusão ou ideia de nenhum outro projeto, nem sequer verifiquei outros projetos com o mesmo *dataset*, pois queria que fosse algo único (embora devem existir projetos muito melhores do que esse).
 
 É isso, aproveite o projeto a seguir, seja você um amigo, recrutador, curioso ou de qualquer tribo ou espécie; também sinta-se livre para subir *issues* sobre o projeto, qualquer coisa mesmo, seja um simples erro de grafia ou até um erro mais grave (Visto que fiz tudo por conta própria, e por mais que revise muitas vezes, algo irá passar despercebido).
+
+---
 
 
 
