@@ -8,8 +8,6 @@
 
  Os dados são fornecidos pelo Washington State Department of Licensing (DOL) e estão disponíveis no portal de dados abertos do governo de Washington: [Site do governo de Washington](data.wa.gov).
 
----
-
 ## Objetivos Principais da Análise
 
  **Crescimento temporal:** Como a adoção de EVs evoluiu ao longo dos anos?
@@ -20,15 +18,11 @@
 
  **Localização:** Quais cidades possuem a maior densidade de veículos elétricos?
 
- ---
-
 ## Documentações das Bibliotecas Utilizadas
 
 * [Pandas](https://pandas.pydata.org/docs/)
 * [Numpy](https://numpy.org/doc/2.4/)
 * [Plotly](https://plotly.com/python/)
-
----
 
 ## Convenções Utilizadas
 
