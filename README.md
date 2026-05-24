@@ -128,6 +128,10 @@ O *Plotly* gera gráficos **interativos** no *Jupyter Notebook* — é possível
 
 Todas as imagens estáticas estão salvas na pasta `/imagens`.
 
-**Para a melhor experiência, recomenda-se rodar localmente ou no [Google Colab](https://colab.research.google.com/).**
+**Para a melhor experiência, recomenda-se rodar localmente, no Google Colab ou no Kaggle.**
 
 > ⚠️ Para os *scatter plots* (Figs. 6 e 7) e o *treemap* (Fig. 8), **não é recomendado usar PNG** como exportação, pois esses gráficos perdem informação relevante no formato estático.
+
+## ⚠️ Aviso base de dados
+
+**Baixe a base de dados! Como novos dados são adcionados frequentemente, isso poderia "quebrar" certos comandos. Então decidi por baixar a versão isolado do dia que baixei, disponível na pasta `base_de_dados`**
