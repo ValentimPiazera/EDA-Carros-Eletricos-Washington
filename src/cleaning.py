@@ -42,9 +42,25 @@ VEHICLE_TYPE_MAPPING = {
     "Plug-in Hybrid Electric Vehicle (PHEV)": "PHEV",
 }
 
-# Trailing noise on the utility names, stripped in this order: " - INC" has to
-# go before the bare "INC" or the dash would be left behind.
-UTILITY_SUFFIXES = [" - (WA)", " - INC", "INC"]
+# What a published `Electric Range` can be, per vehicle type, as (floor,
+# ceiling) in miles. The BEV floor is what a car cannot go under and still be
+# battery-electric; the PHEV floor sits just under the smallest figure the DOL
+# actually publishes here — 6 miles, for the 2012-2015 Prius Plug-in and the
+# Revuelto. This is the project's single definition of a possible range:
+# `blank_unusable_range` cleans by it and `utils.implausible_range` audits by
+# it, so the two cannot drift apart.
+PLAUSIBLE_RANGE = {"BEV": (30.0, 400.0), "PHEV": (5.0, 160.0)}
+
+# Trailing noise on the utility names. Both patterns are anchored to the end
+# of the provider token, and `\bINC\b` to a word boundary, so that a name
+# merely containing those letters — CITY OF PRINCETON, LINCOLN ELECTRIC —
+# survives intact. Stripping a bare "INC" anywhere would maul both.
+UTILITY_SUFFIXES = [r"\s*-\s*\(WA\)$", r",?\s*\bINC\b\.?$"]
+
+# Not a provider: the source's way of saying no provider is on file, which
+# makes it an absence, and absences are `NaN` here as they are everywhere else.
+# Written as `.str.title()` leaves it, which is what `test_cleaning` pins.
+UNKNOWN_UTILITY = "No Known Electric Utility Service"
 
 
 def drop_incomplete_rows(frame: pd.DataFrame) -> pd.DataFrame:
@@ -66,15 +82,33 @@ def keep_washington(frame: pd.DataFrame) -> pd.DataFrame:
     return frame[frame["State"] == "WA"].copy()
 
 
-def blank_unresearched_range(frame: pd.DataFrame) -> pd.DataFrame:
-    """Replace the zero placeholder in `Electric Range` with `NaN`.
+def blank_unusable_range(frame: pd.DataFrame) -> pd.DataFrame:
+    """Blank every `Electric Range` that cannot describe the row it sits on.
 
-    The DOL writes 0 for vehicles whose range it has not researched, not for
-    vehicles without a battery. Left as zeros they would drag every average
-    down; as `NaN` they are excluded and the missingness stays visible.
+    One rule, read off `PLAUSIBLE_RANGE`: a figure outside what the row's own
+    vehicle type can reach is not a measurement of that vehicle, so it becomes
+    `NaN` rather than an average-dragging number. On this export it catches
+    three things — the DOL's 0 for a battery it has not researched, the 1 that
+    32 model year 2025 Mercedes-Benz plug-ins carry in a file with nothing at
+    all between 2 and 5 miles, and 8 rows badged BEV holding 29 miles, which is
+    the published figure for the *plug-in* Hyundai IONIQ. In that last case the
+    row's type and its range disagree; blanking says which of the two this
+    project trusts, and `utils.implausible_range` then audits the result.
+
+    Genuine low figures survive: 6 miles for the 2012-2015 Prius Plug-in and
+    the Revuelto, 8 and 9 for the Mercedes C350e, are all real EPA ratings and
+    all sit above their type's floor.
     """
     frame = frame.copy()
-    frame["Electric Range"] = frame["Electric Range"].replace(0, np.nan)
+    ranges = frame["Electric Range"]
+    # `replace` rather than `map`, so this works either side of
+    # `abbreviate_vehicle_type`: it shortens the source's sentences and leaves
+    # an already-shortened `BEV` or `PHEV` alone.
+    types = frame["Electric Vehicle Type"].replace(VEHICLE_TYPE_MAPPING)
+    floor = types.map({t: low for t, (low, _) in PLAUSIBLE_RANGE.items()})
+    ceiling = types.map({t: high for t, (_, high) in PLAUSIBLE_RANGE.items()})
+    unusable = (ranges < floor) | (ranges > ceiling)
+    frame.loc[unusable, "Electric Range"] = np.nan
     return frame
 
 
@@ -84,9 +118,17 @@ def drop_unused_columns(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def shorten_cafv_status(frame: pd.DataFrame) -> pd.DataFrame:
-    """Rename the CAFV column and shorten its sentence-long values."""
+    """Rename the CAFV column and shorten its sentence-long values.
+
+    A status is only ever as good as the range it was read off, so a row left
+    without a range is left without a ruling too. The source already does this
+    for the batteries it has not researched; applying it to the rows
+    `blank_unusable_range` emptied keeps the invariant exact — every status in
+    the export is one the range column can still account for.
+    """
     frame = frame.rename(columns={CAFV_COLUMN: "CAFV Status"})
     frame["CAFV Status"] = frame["CAFV Status"].map(CAFV_MAPPING)
+    frame.loc[frame["Electric Range"].isna(), "CAFV Status"] = np.nan
     return frame
 
 
@@ -119,11 +161,18 @@ def simplify_utility(frame: pd.DataFrame) -> pd.DataFrame:
     separated by `||`. Keeping the first one is what makes the column
     categorical enough to group and chart, at the cost of the multi-provider
     information — a simplification, not an oversight.
+
+    `Bonneville Power Administration` is kept under its own name. It is the
+    federal wholesaler rather than a retail supplier, but it is what the
+    source records, and relabelling it would be an editorial judgement rather
+    than a cleaning step.
     """
     frame = frame.copy()
-    utility = frame["Electric Utility"]
+    # Split first: every other provider in the packed field is about to be
+    # discarded, so there is no sense rewriting it three times beforehand.
+    utility = frame["Electric Utility"].str.split("|").str[0]
     for suffix in UTILITY_SUFFIXES:
-        utility = utility.str.replace(suffix, "", regex=False)
-    utility = utility.str.split("|").str[0]
-    frame["Electric Utility"] = utility.str.strip().str.title()
+        utility = utility.str.replace(suffix, "", regex=True)
+    utility = utility.str.strip().str.title()
+    frame["Electric Utility"] = utility.replace(UNKNOWN_UTILITY, np.nan)
     return frame

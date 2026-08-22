@@ -48,11 +48,11 @@ Both are written to run **from the repository root**, not from `notebooks/`. Loc
 
 1. **Removal of incomplete rows** — 10 rows holding *NaN* in fields such as city and county were removed. In a *dataframe* of ~271 thousand rows, the loss is negligible.
 2. **Geographic filter** — rows registered outside Washington State were removed (649 records), keeping the analysis in focus.
-3. **Zeroed range** — `0` values in `Electric Range` were replaced with *NaN*, since they mark recent vehicles whose range the DOL has not researched, rather than real measurements.
+3. **Unusable range** — any `Electric Range` outside what the row's own vehicle type can reach was replaced with *NaN*, since it cannot be a measurement of that vehicle. It removes three things: the `0` the DOL writes for a battery it has not researched, the `1` carried by 32 model year 2025 Mercedes-Benz plug-ins, and the `29` on 8 rows badged BEV, which is the published figure for the *plug-in* Hyundai IONIQ. Genuinely low ratings, such as the 6 miles of the 2012–2015 Prius Plug-in, survive. A status read off a range that went is dropped with it, so every `CAFV Status` in the export is one the range column still accounts for.
 4. **Removal of irrelevant columns** — dropped: `VIN (1-10)`, `State`, `Postal Code`, `Legislative District`, `DOL Vehicle ID`, `Vehicle Location` and `2020 Census Tract`, none of which serve the questions above.
 5. **Creation of the `Vehicle Age` column** — calculated as `2026 - Model Year`, the vehicle's age in years, measured against the year of the snapshot.
 6. **Name standardisation** — the `Clean Alternative Fuel Vehicle (CAFV) Eligibility` column was renamed to `CAFV Status` and its values shortened. The vehicle types were abbreviated to `BEV` and `PHEV`.
-7. **Cleaning of the `Electric Utility` column** — suffixes such as `INC` and `WA` removed, and only the first provider listed kept, since the source packs several into one field.
+7. **Cleaning of the `Electric Utility` column** — only the first provider is kept, since the source packs several into one field, and the trailing `- (WA)` and `INC` are stripped from it. `No Known Electric Utility Service` records the absence of a provider rather than a provider, so those 350 rows became *NaN*, which is why the column holds 19 names and not 20.
 8. **Outlier check** — the quartile method (IQR) applied. The *outliers* it finds, such as a 1999 Ford Ranger, were kept, because they are true records inside a *dataset* that spans 27 years.
 
 ---

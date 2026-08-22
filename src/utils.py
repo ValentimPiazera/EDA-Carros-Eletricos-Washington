@@ -6,11 +6,19 @@ Count columns are named `Registrations`, after what they hold rather than
 after the column they were counted from.
 """
 
+import numpy as np
 import pandas as pd
+
+from src import cleaning
 
 # The textbook 1.5, kept as a named constant so the choice of fence is
 # visible rather than buried in the arithmetic below.
 IQR_MULTIPLIER = 1.5
+
+# What `implausible_range` says about a row it flags.
+BELOW_FLOOR = "below the floor for its type"
+ABOVE_CEILING = "above the ceiling for its type"
+UNBOUNDED_TYPE = "no bounds are defined for this type"
 
 
 def outliers_quartile(frame: pd.DataFrame, column: str) -> pd.DataFrame:
@@ -26,6 +34,40 @@ def outliers_quartile(frame: pd.DataFrame, column: str) -> pd.DataFrame:
     lower_fence = first_quartile - IQR_MULTIPLIER * spread
     upper_fence = third_quartile + IQR_MULTIPLIER * spread
     return frame[(frame[column] < lower_fence) | (frame[column] > upper_fence)]
+
+
+def implausible_range(frame: pd.DataFrame) -> pd.DataFrame:
+    """Return the rows whose `Electric Range` is impossible for their type.
+
+    Audits what `cleaning.blank_unusable_range` was supposed to have settled,
+    against the same `cleaning.PLAUSIBLE_RANGE` bounds, and adds a
+    `Plausibility` column naming the rule each row broke.
+
+    The quartile test cannot do this job. `Electric Range` is bimodal — BEVs
+    around 215 miles against PHEVs around 32 — so a fence drawn across both,
+    on a column that is 63% `NaN`, comfortably swallows a plug-in claiming a
+    single mile. Bounds taken from the domain are what catch it.
+
+    A type with no bounds is reported rather than skipped: `map` turns any
+    category the source adds into `NaN`, and a vehicle this project has never
+    heard of is exactly what a plausibility gate should be loudest about.
+    """
+    bounds = cleaning.PLAUSIBLE_RANGE
+    known = frame[frame["Electric Range"].notna()].copy()
+    types = known["Electric Vehicle Type"]
+    floor = types.map({t: low for t, (low, _) in bounds.items()})
+    ceiling = types.map({t: high for t, (_, high) in bounds.items()})
+
+    unbounded = floor.isna()
+    below = known["Electric Range"] < floor
+    above = known["Electric Range"] > ceiling
+    known["Plausibility"] = np.select(
+        [unbounded, below, above],
+        [UNBOUNDED_TYPE, BELOW_FLOOR, ABOVE_CEILING],
+        default="",
+    )
+    flagged = known[unbounded | below | above]
+    return flagged.sort_values(["Electric Vehicle Type", "Electric Range"])
 
 
 def top_makes(frame: pd.DataFrame, count: int = 10) -> pd.DataFrame:
