@@ -1,0 +1,7 @@
+{
+  // Notebooks run from the repository root, never from `notebooks/`.
+  // This is what makes `from src import cleaning` and the `data/...` paths
+  // resolve without any `sys.path` manipulation.
+  "jupyter.notebookFileRoot": "${workspaceFolder}",
+  "python.terminal.executeInFileDir": false
+}
