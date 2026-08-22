@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pytest
 
 from src import cleaning
 
@@ -12,6 +13,29 @@ def ranges(types, miles):
     return pd.DataFrame(
         {"Electric Vehicle Type": types, "Electric Range": miles}
     )
+
+
+def source_rows(**overrides):
+    row = {
+        "VIN (1-10)": "5YJ3E1EA7K",
+        "County": "King",
+        "City": "Sedro Woolley",
+        "State": "WA",
+        "Postal Code": 98101.0,
+        "Model Year": 2020,
+        "Make": "TESLA",
+        "Model": "MODEL 3",
+        "Electric Vehicle Type": "Battery Electric Vehicle (BEV)",
+        cleaning.CAFV_COLUMN: "Clean Alternative Fuel Vehicle Eligible",
+        "Electric Range": 266.0,
+        "Legislative District": 43.0,
+        "DOL Vehicle ID": 123456789,
+        "Vehicle Location": "POINT (-122.3 47.6)",
+        "Electric Utility": "PUGET SOUND ENERGY INC||CITY OF TACOMA - (WA)",
+        "2020 Census Tract": 53033007800,
+    }
+    row.update(overrides)
+    return pd.DataFrame([row])
 
 
 def test_a_provider_whose_name_merely_contains_inc_survives_intact():
@@ -89,7 +113,68 @@ def test_a_status_is_dropped_when_the_range_behind_it_was_blanked():
     assert list(cleaned["CAFV Status"].isna()) == [True, False]
 
 
+def test_a_range_sitting_exactly_on_its_type_floor_survives():
+    cleaned = cleaning.blank_unusable_range(
+        ranges(["PHEV", "BEV"], [5.0, 30.0])
+    )
+    assert list(cleaned["Electric Range"]) == [5.0, 30.0]
+
+
 def test_cleaning_a_frame_leaves_the_frame_it_was_given_untouched():
     frame = ranges(["PHEV"], [1.0])
     cleaning.blank_unusable_range(frame)
     assert list(frame["Electric Range"]) == [1.0]
+
+
+def test_a_city_the_source_spells_two_ways_is_collapsed_onto_one():
+    frame = pd.DataFrame({"City": ["Sedro Woolley", "Sedro-Woolley"]})
+    cleaned = cleaning.standardise_city(frame)
+    assert set(cleaned["City"]) == {"Sedro-Woolley"}
+
+
+def test_the_pipeline_turns_a_source_row_into_an_export_row():
+    cleaned = cleaning.clean(source_rows())
+    assert list(cleaned.columns) == [
+        "County",
+        "City",
+        "Model Year",
+        "Make",
+        "Model",
+        "Electric Vehicle Type",
+        "CAFV Status",
+        "Electric Range",
+        "Electric Utility",
+        "Vehicle Age",
+    ]
+    assert cleaned.iloc[0]["Electric Vehicle Type"] == "BEV"
+    assert cleaned.iloc[0]["CAFV Status"] == "Eligible"
+    assert cleaned.iloc[0]["Electric Utility"] == "Puget Sound Energy"
+    assert cleaned.iloc[0]["City"] == "Sedro-Woolley"
+    assert cleaned.iloc[0]["Vehicle Age"] == cleaning.SNAPSHOT_YEAR - 2020
+
+
+def test_the_pipeline_drops_a_row_registered_outside_washington():
+    assert cleaning.clean(source_rows(State="CA")).empty
+
+
+def test_the_export_check_passes_on_what_the_pipeline_produces():
+    counts = cleaning.check_export(cleaning.clean(source_rows()))
+    assert counts["rows"] == 1
+    assert counts["columns"] == 10
+
+
+def test_the_export_check_raises_on_a_status_left_without_a_range():
+    broken = cleaning.clean(source_rows())
+    broken.loc[0, "Electric Range"] = np.nan
+    with pytest.raises(AssertionError, match="statuses left without a range"):
+        cleaning.check_export(broken)
+
+
+def test_the_export_check_raises_on_a_city_spelled_two_ways():
+    broken = pd.concat(
+        [cleaning.clean(source_rows()), cleaning.clean(source_rows())],
+        ignore_index=True,
+    )
+    broken.loc[1, "City"] = "Sedro Woolley"
+    with pytest.raises(AssertionError, match="cities spelled more than one"):
+        cleaning.check_export(broken)

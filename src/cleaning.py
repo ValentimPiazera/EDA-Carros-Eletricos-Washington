@@ -2,8 +2,9 @@
 
 Every function takes a frame and returns a new one, so that a notebook cell
 can be re-run without compounding the edit before it. They are written in the
-order `I-cleaning` applies them, and `keep_washington` has to come before
-`drop_unused_columns`, which is what removes the `State` column it reads.
+order they are applied, which `clean` pins and `check_export` verifies —
+several of them read a column an earlier step writes or a later step removes,
+and getting that order wrong fails quietly rather than loudly.
 """
 
 import numpy as np
@@ -49,7 +50,23 @@ VEHICLE_TYPE_MAPPING = {
 # Revuelto. This is the project's single definition of a possible range:
 # `blank_unusable_range` cleans by it and `utils.implausible_range` audits by
 # it, so the two cannot drift apart.
+#
+# These numbers delete data. Widen them and an implausible figure survives
+# into the averages; tighten them and genuine ratings are destroyed silently —
+# a PHEV floor of 40 would erase every Prius Plug-in in the file. Both edges
+# are pinned by tests, and `check_export` re-checks the finished export.
 PLAUSIBLE_RANGE = {"BEV": (30.0, 400.0), "PHEV": (5.0, 160.0)}
+
+# One city, two spellings, straight from the source. Collapsed onto the form
+# the DOL itself uses most often, except where the only difference is the
+# capitalisation of a proper noun, where the correct capitalisation wins.
+# None of the three reaches figure 5 — the largest, Sedro-Woolley, ranks about
+# 103rd once joined — but they inflate the count of distinct cities by three.
+CITY_SPELLINGS = {
+    "Sedro Woolley": "Sedro-Woolley",
+    "Silver Lake": "Silverlake",
+    "Mccleary": "McCleary",
+}
 
 # Trailing noise on the utility names. Both patterns are anchored to the end
 # of the provider token, and `\bINC\b` to a word boundary, so that a name
@@ -82,6 +99,22 @@ def keep_washington(frame: pd.DataFrame) -> pd.DataFrame:
     return frame[frame["State"] == "WA"].copy()
 
 
+def range_bounds(frame: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
+    """Return the floor and ceiling each row's own vehicle type allows.
+
+    `replace` rather than `map` on the type, so callers get the same answer
+    either side of `abbreviate_vehicle_type`: it shortens the source's
+    sentences and leaves an already-shortened `BEV` or `PHEV` alone. A type
+    with no entry in `PLAUSIBLE_RANGE` yields `NaN` bounds, which compare
+    false against everything — `utils.implausible_range` is what reports
+    those rows rather than letting them pass unexamined.
+    """
+    types = frame["Electric Vehicle Type"].replace(VEHICLE_TYPE_MAPPING)
+    floor = types.map({t: low for t, (low, _) in PLAUSIBLE_RANGE.items()})
+    ceiling = types.map({t: high for t, (_, high) in PLAUSIBLE_RANGE.items()})
+    return floor, ceiling
+
+
 def blank_unusable_range(frame: pd.DataFrame) -> pd.DataFrame:
     """Blank every `Electric Range` that cannot describe the row it sits on.
 
@@ -101,12 +134,7 @@ def blank_unusable_range(frame: pd.DataFrame) -> pd.DataFrame:
     """
     frame = frame.copy()
     ranges = frame["Electric Range"]
-    # `replace` rather than `map`, so this works either side of
-    # `abbreviate_vehicle_type`: it shortens the source's sentences and leaves
-    # an already-shortened `BEV` or `PHEV` alone.
-    types = frame["Electric Vehicle Type"].replace(VEHICLE_TYPE_MAPPING)
-    floor = types.map({t: low for t, (low, _) in PLAUSIBLE_RANGE.items()})
-    ceiling = types.map({t: high for t, (_, high) in PLAUSIBLE_RANGE.items()})
+    floor, ceiling = range_bounds(frame)
     unusable = (ranges < floor) | (ranges > ceiling)
     frame.loc[unusable, "Electric Range"] = np.nan
     return frame
@@ -168,11 +196,95 @@ def simplify_utility(frame: pd.DataFrame) -> pd.DataFrame:
     than a cleaning step.
     """
     frame = frame.copy()
-    # Split first: every other provider in the packed field is about to be
-    # discarded, so there is no sense rewriting it three times beforehand.
-    utility = frame["Electric Utility"].str.split("|").str[0]
+    # Drop the other providers first: there is no sense stripping suffixes
+    # from text that is about to be discarded. Cutting at the separator with
+    # a regex rather than `.str.split(...).str[0]` keeps the column in the
+    # string dtype, where the list-and-index route drops it to object and
+    # leaves the frame no longer comparable to its own round-tripped CSV.
+    utility = frame["Electric Utility"].str.replace(r"\|.*$", "", regex=True)
     for suffix in UTILITY_SUFFIXES:
         utility = utility.str.replace(suffix, "", regex=True)
     utility = utility.str.strip().str.title()
     frame["Electric Utility"] = utility.replace(UNKNOWN_UTILITY, np.nan)
     return frame
+
+
+def standardise_city(frame: pd.DataFrame) -> pd.DataFrame:
+    """Collapse the three cities the source spells two ways.
+
+    Sedro-Woolley is 300 rows against 80, Silverlake 32 against 1 and
+    McCleary 67 against 2, so each was being counted as two places. The
+    counts are too small to move figure 5, but they made the fleet look like
+    it covered 494 cities when it covers 491.
+    """
+    frame = frame.copy()
+    frame["City"] = frame["City"].replace(CITY_SPELLINGS)
+    return frame
+
+
+def clean(frame: pd.DataFrame) -> pd.DataFrame:
+    """Run every cleaning step, in the one order that is correct.
+
+    The order matters and the dependencies are silent, which is why this
+    exists rather than a loose sequence of calls: `keep_washington` reads
+    `State`, which `drop_unused_columns` then removes, and
+    `shorten_cafv_status` reads `Electric Range`, so it has to run after the
+    unusable figures have been blanked or it keeps rulings the range column
+    can no longer account for.
+
+    `I-cleaning` walks the same sequence a step at a time, because the
+    walk is the narrative. `check_export` is what catches the two diverging.
+    """
+    frame = drop_incomplete_rows(frame)
+    frame = keep_washington(frame)
+    frame = blank_unusable_range(frame)
+    frame = drop_unused_columns(frame)
+    frame = shorten_cafv_status(frame)
+    frame = abbreviate_vehicle_type(frame)
+    frame = add_vehicle_age(frame)
+    frame = simplify_utility(frame)
+    return standardise_city(frame)
+
+
+def check_export(frame: pd.DataFrame) -> pd.Series:
+    """Assert what the cleaned export promises, and report the counts.
+
+    A sanity check that only prints is not a check, so this one raises. Each
+    line corresponds to a defect this project actually shipped at some point:
+    ranges impossible for their own type, a CAFV ruling left behind by the
+    range it was read off, and one city arriving under two spellings.
+    """
+    ranges = frame["Electric Range"]
+    floor, ceiling = range_bounds(frame)
+    spellings = frame["City"].dropna().unique()
+    keys = pd.Series(
+        [name.upper().replace(" ", "").replace("-", "") for name in spellings]
+    )
+    counts = pd.Series(
+        {
+            "rows": len(frame),
+            "columns": frame.shape[1],
+            "ranges outside their type's bounds": int(
+                ((ranges < floor) | (ranges > ceiling)).sum()
+            ),
+            "statuses left without a range": int(
+                (frame["CAFV Status"].notna() & ranges.isna()).sum()
+            ),
+            "ages disagreeing with the model year": int(
+                (
+                    frame["Vehicle Age"] != SNAPSHOT_YEAR - frame["Model Year"]
+                ).sum()
+            ),
+            "cities spelled more than one way": len(keys) - keys.nunique(),
+            "required fields left empty": int(
+                frame[["County", "City", "Make", "Model"]].isna().sum().sum()
+            ),
+        }
+    )
+    broken = counts.drop(["rows", "columns"])
+    broken = broken[broken > 0]
+    if not broken.empty:
+        raise AssertionError(
+            f"the export breaks its own invariants: {broken.to_dict()}"
+        )
+    return counts

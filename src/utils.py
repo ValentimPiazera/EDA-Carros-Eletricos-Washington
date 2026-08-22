@@ -52,11 +52,8 @@ def implausible_range(frame: pd.DataFrame) -> pd.DataFrame:
     category the source adds into `NaN`, and a vehicle this project has never
     heard of is exactly what a plausibility gate should be loudest about.
     """
-    bounds = cleaning.PLAUSIBLE_RANGE
     known = frame[frame["Electric Range"].notna()].copy()
-    types = known["Electric Vehicle Type"]
-    floor = types.map({t: low for t, (low, _) in bounds.items()})
-    ceiling = types.map({t: high for t, (_, high) in bounds.items()})
+    floor, ceiling = cleaning.range_bounds(known)
 
     unbounded = floor.isna()
     below = known["Electric Range"] < floor
