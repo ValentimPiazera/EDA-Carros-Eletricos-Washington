@@ -1,0 +1,43 @@
+import numpy as np
+import pandas as pd
+
+from src import utils
+
+
+def ranges(types, miles):
+    return pd.DataFrame(
+        {"Electric Vehicle Type": types, "Electric Range": miles}
+    )
+
+
+def test_a_range_inside_the_bounds_of_its_type_is_not_flagged():
+    fine = ranges(["BEV", "PHEV"], [215.0, 32.0])
+    assert utils.implausible_range(fine).empty
+
+
+def test_a_type_with_no_bounds_is_flagged_rather_than_skipped():
+    flagged = utils.implausible_range(ranges(["FCEV", np.nan], [9999.0, 3.0]))
+    assert len(flagged) == 2
+    assert set(flagged["Plausibility"]) == {utils.UNBOUNDED_TYPE}
+
+
+def test_each_flagged_row_names_the_rule_it_broke():
+    flagged = utils.implausible_range(ranges(["BEV", "PHEV"], [10.0, 500.0]))
+    assert list(flagged["Plausibility"]) == [
+        utils.BELOW_FLOOR,
+        utils.ABOVE_CEILING,
+    ]
+
+
+def test_a_missing_range_is_nothing_to_complain_about():
+    assert utils.implausible_range(ranges(["BEV"], [np.nan])).empty
+
+
+def test_the_quartile_test_returns_the_rows_outside_the_fence():
+    frame = pd.DataFrame({"miles": [10, 11, 12, 13, 1000]})
+    assert list(utils.outliers_quartile(frame, "miles")["miles"]) == [1000]
+
+
+def test_the_quartile_test_returns_an_empty_frame_when_all_is_well():
+    frame = pd.DataFrame({"miles": [10, 11, 12, 13]})
+    assert utils.outliers_quartile(frame, "miles").empty
