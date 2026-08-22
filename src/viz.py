@@ -1,9 +1,7 @@
 """The eight figures of `II-analysis`, and the palettes they are drawn with.
 
 Every function takes a frame already aggregated by `utils` and returns a
-Plotly figure, leaving `fig.show()` to the notebook. Titles and axis labels
-are still the Portuguese strings the exported PNGs in `images/` show, so that
-a figure rebuilt here is the same figure the README links to.
+Plotly figure, leaving `fig.show()` to the notebook.
 
 Plotly does not render on GitHub, so a new figure is not finished until its
 PNG has been exported into `images/` and referenced from the README.
@@ -32,12 +30,12 @@ def top_makes_bar(frame: pd.DataFrame) -> go.Figure:
     """Figure 1: the ten makes with the most vehicles registered."""
     fig = px.bar(
         frame,
-        x="Quantidade",
-        y="Marca",
-        title="<b>Figura 1: Top 10 Marcas na Frota<b>",
+        x="Registrations",
+        y="Make",
+        title="<b>Figure 1: Top 10 Makes in the Fleet</b>",
         width=800,
         height=600,
-        color="Marca",
+        color="Make",
         color_discrete_sequence=PALETTE,
     )
     fig.update_layout(title_x=0.5)
@@ -48,28 +46,30 @@ def vehicle_type_pie(frame: pd.DataFrame) -> go.Figure:
     """Figure 2: the share of the fleet held by BEVs and by PHEVs."""
     fig = px.pie(
         frame,
-        values="Quantidade",
-        names="Tipo",
-        title="<b>Figura 2: Proporção entre BEVs e PHEVs na Frota<b>",
+        values="Registrations",
+        names="Type",
+        title="<b>Figure 2: BEV and PHEV Share of the Fleet</b>",
         width=600,
         height=400,
-        color="Tipo",
+        color="Type",
         color_discrete_map=VEHICLE_TYPE_COLOURS,
     )
-    fig.update_layout(title_x=0.5, legend_title="Tipo")
+    fig.update_layout(title_x=0.5, legend_title="Type")
     return fig
 
 
 def model_year_area(frame: pd.DataFrame) -> go.Figure:
     """Figure 3: how the surviving fleet is spread across model years."""
-    return px.area(
+    fig = px.area(
         frame,
-        x="Ano",
-        y="Quantidade",
-        title="<b>Figura 3: Curva de Idade Entre a Frota<b>",
+        x="Model Year",
+        y="Registrations",
+        title="<b>Figure 3: Model Year Profile of the Fleet</b>",
         width=1000,
         height=500,
     )
+    fig.update_layout(title_x=0.5)
+    return fig
 
 
 def cafv_by_type_bar(frame: pd.DataFrame) -> go.Figure:
@@ -77,19 +77,17 @@ def cafv_by_type_bar(frame: pd.DataFrame) -> go.Figure:
     fig = px.bar(
         frame,
         x="Electric Vehicle Type",
-        y="Contagem",
+        y="Registrations",
         color="CAFV Status",
-        title=(
-            "<b>Figura 4: Correlação Entre Tipo Tecnológico "
-            "e Elegibilidade CAFV</b>"
-        ),
+        title="<b>Figure 4: Vehicle Type Against CAFV Eligibility</b>",
         barmode="stack",
         template="plotly_white",
     )
     fig.update_layout(
-        xaxis_title="Tipo de Veículo",
-        yaxis_title="Volume de Registros",
-        legend_title="Status CAFV",
+        title_x=0.5,
+        xaxis_title="Vehicle Type",
+        yaxis_title="Registrations",
+        legend_title="CAFV Status",
     )
     return fig
 
@@ -98,12 +96,12 @@ def top_cities_funnel(frame: pd.DataFrame) -> go.Figure:
     """Figure 5: the fifteen cities with the most vehicles registered."""
     fig = px.funnel(
         frame,
-        x="Quantidade",
-        y="Cidade",
+        x="Registrations",
+        y="City",
         width=800,
         height=600,
-        title="<b>Figura 5: Top 15 Cidades com Mais Veículos Registrados<b>",
-        color="Cidade",
+        title="<b>Figure 5: Top 15 Cities by Vehicles Registered</b>",
+        color="City",
         color_discrete_sequence=CITY_PALETTE,
     )
     fig.update_layout(title_x=0.5)
@@ -119,25 +117,26 @@ def range_vs_volume_scatter(
     researched the range of a minority of vehicles, so the later period is a
     selected subsample, not the market.
     """
-    return px.scatter(
+    fig = px.scatter(
         frame,
-        x="Quantidade",
-        y="Autonomia",
-        size="Quantidade",
+        x="Registrations",
+        y="Mean Electric Range",
+        size="Registrations",
         title=title,
-        color="Modelo",
-        labels={"Autonomia": "Autonomia em Milhas"},
+        color="Model",
+        labels={"Mean Electric Range": "Mean Electric Range (miles)"},
         color_discrete_sequence=palette,
         template="plotly_white",
     )
+    fig.update_layout(title_x=0.5)
+    return fig
 
 
 def early_period_scatter(frame: pd.DataFrame) -> go.Figure:
     """Figure 6: range against volume for model years 2015 to 2019."""
     return range_vs_volume_scatter(
         frame,
-        "<b>Figura 6: Relação de Autonomia e Quantidade "
-        "Registrada 2015 - 2019<b>",
+        "<b>Figure 6: Mean Range Against Volume Registered, 2015-2019</b>",
         EARLY_PERIOD_PALETTE,
     )
 
@@ -146,8 +145,7 @@ def late_period_scatter(frame: pd.DataFrame) -> go.Figure:
     """Figure 7: range against volume for model years 2020 to 2026."""
     return range_vs_volume_scatter(
         frame,
-        "<b>Figura 7: Relação de Autonomia e Quantidade "
-        "Registrada 2020- 2026<b>",
+        "<b>Figure 7: Mean Range Against Volume Registered, 2020-2026</b>",
         LATE_PERIOD_PALETTE,
     )
 
@@ -156,11 +154,11 @@ def market_share_treemap(frame: pd.DataFrame) -> go.Figure:
     """Figure 8: each make's share of the fleet, as a percentage."""
     fig = px.treemap(
         frame,
-        path=["Marca"],
-        values="Participação",
-        color="Marca",
+        path=["Make"],
+        values="Share",
+        color="Make",
         color_discrete_sequence=MARKET_SHARE_PALETTE,
-        title="<b> Figura 8: Marketshare Geral em Porcentagem",
+        title="<b>Figure 8: Market Share by Make</b>",
     )
     fig.update_traces(
         textinfo="label+value",

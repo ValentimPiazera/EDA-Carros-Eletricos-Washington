@@ -1,137 +1,146 @@
-# Análise de Veículos Elétricos — Washington State
+# Electric Vehicle Analysis — Washington State
 
-Este projeto realiza a limpeza, transformação, plotagem e análise exploratória (*EDA*) dos dados de veículos elétricos (BEVs e PHEVs) registrados no estado de Washington. O objetivo é entender a adoção de tecnologias de transporte limpo, a evolução da autonomia das baterias e as tendências de *marketshare* dos fabricantes.
-
----
-
-## Origem dos Dados
-
-Os dados são fornecidos pelo *Washington State Department of Licensing* (DOL) e estão disponíveis no portal de dados abertos do governo de Washington: [data.wa.gov](https://data.wa.gov).
-
-O arquivo utilizado é o `Electric_Vehicle_Population_Data_20260122.csv`, com aproximadamente **271 mil registros** de veículos elétricos registrados no estado.
+This project cleans, transforms, plots and explores (*EDA*) the data on electric vehicles (BEVs and PHEVs) registered in Washington State. The goal is to understand the adoption of clean transport technology, the evolution of battery range and the *market share* trends among manufacturers.
 
 ---
 
-## Estrutura do Projeto
+## Data Source
 
-O projeto está dividido em dois *notebooks*:
+The data is published by the *Washington State Department of Licensing* (DOL) and is available on the Washington State open data portal: [data.wa.gov](https://data.wa.gov).
 
-| Notebook | Descrição |
+The file used is `Electric_Vehicle_Population_Data_20260122.csv`, holding roughly **271 thousand records** of electric vehicles registered in the state. It is a frozen snapshot, taken on 2026-01-22: the live file is updated continuously, and refreshing it would silently change every count below.
+
+---
+
+## Project Layout
+
+```text
+data/raw/          the frozen DOL export, never modified in place
+data/processed/    the cleaned export, written by I-cleaning
+notebooks/         the narrative; calls into src/, does not duplicate it
+src/               cleaning.py, viz.py, utils.py — all reusable logic
+tests/             the pytest suite for the pure functions in src/
+images/            exported PNGs
+```
+
+The analysis is split across two *notebooks*:
+
+| Notebook | Description |
 | --- | --- |
-| `01_limpeza.ipynb` | Exploração inicial, limpeza e transformação dos dados |
-| `02_analise_eda.ipynb` | Visualizações, análises e *insights* |
+| `I-cleaning.ipynb` | Initial exploration, cleaning and transformation |
+| `II-analysis.ipynb` | Visualisations, analysis and *insights* |
+
+Both are written to run **from the repository root**, not from `notebooks/`. Locally, `.vscode/settings.json` already points VS Code's Jupyter root at the workspace folder; on Colab and Kaggle, the setup cell at the top of each notebook clones the repository and moves into it.
 
 ---
 
-## Objetivos da Análise
+## Questions the Analysis Asks
 
-- **Crescimento temporal:** Como a adoção de EVs evoluiu ao longo dos anos?
-- **Distribuição por fabricante:** Quais marcas dominam a frota?
-- **Autonomia média:** Qual a evolução da capacidade das baterias por ano do modelo?
-- **Localização:** Quais cidades possuem a maior densidade de veículos elétricos?
-- ***Marketshare*:** Qual a fatia real de cada fabricante no mercado, em porcentagem?
-
----
-
-## Etapas da Limpeza (`01_limpeza.ipynb`)
-
-O *notebook* de limpeza cobre as seguintes etapas:
-
-1. **Remoção de linhas inconsistentes** — 10 linhas com valores *NaN* em campos como cidade e condado foram removidas. Em um *dataframe* com ~271 mil linhas, essa perda é insignificante.
-2. **Filtro geográfico** — Linhas fora do estado de Washington foram removidas (~1.000 registros), mantendo o foco da análise.
-3. **Tratamento de autonomia zerada** — Valores `0` na coluna `Electric Range` foram substituídos por *NaN*, pois representam veículos recentes sem dados oficiais de autonomia registrados, e não valores reais.
-4. **Remoção de colunas irrelevantes** — Foram descartadas: `VIN (1-10)`, `State`, `Postal Code`, `Legislative District`, `DOL Vehicle ID`, `Vehicle Location` e `2020 Census Tract`, por não contribuírem para os objetivos da análise.
-5. **Criação da coluna `Vehicle Age`** — Calculada como `2026 - Model Year`, representando a idade do veículo em anos.
-6. **Padronização de nomes** — A coluna `Clean Alternative Fuel Vehicle (CAFV) Eligibility` foi renomeada para `CAFV Status` e seus valores foram simplificados. Os tipos de veículo também foram abreviados para `BEV` e `PHEV`.
-7. **Limpeza da coluna `Electric Utility`** — Remoção de sufixos como `INC`, `WA` e barras, além da padronização do nome da *Bonneville Power Administration*.
-8. **Verificação de *outliers*** — Aplicado o método de quartis (IQR). *Outliers* identificados, como um Ford Ranger de 1999, foram mantidos por representarem dados verdadeiros dentro de um *dataset* abrangente.
+- **Growth over time:** how has the adoption of EVs evolved across the years?
+- **Distribution by manufacturer:** which makes dominate the fleet?
+- **Mean range:** how has battery capacity evolved by model year?
+- **Location:** which cities hold the highest density of electric vehicles?
+- ***Market share*:** what is each manufacturer's real slice of the market, as a percentage?
 
 ---
 
-## Análises e Visualizações (`02_analise_eda.ipynb`)
+## Cleaning Steps (`I-cleaning.ipynb`)
 
-### Parte II — Visão Geral da Frota
+1. **Removal of incomplete rows** — 10 rows holding *NaN* in fields such as city and county were removed. In a *dataframe* of ~271 thousand rows, the loss is negligible.
+2. **Geographic filter** — rows registered outside Washington State were removed (649 records), keeping the analysis in focus.
+3. **Zeroed range** — `0` values in `Electric Range` were replaced with *NaN*, since they mark recent vehicles whose range the DOL has not researched, rather than real measurements.
+4. **Removal of irrelevant columns** — dropped: `VIN (1-10)`, `State`, `Postal Code`, `Legislative District`, `DOL Vehicle ID`, `Vehicle Location` and `2020 Census Tract`, none of which serve the questions above.
+5. **Creation of the `Vehicle Age` column** — calculated as `2026 - Model Year`, the vehicle's age in years, measured against the year of the snapshot.
+6. **Name standardisation** — the `Clean Alternative Fuel Vehicle (CAFV) Eligibility` column was renamed to `CAFV Status` and its values shortened. The vehicle types were abbreviated to `BEV` and `PHEV`.
+7. **Cleaning of the `Electric Utility` column** — suffixes such as `INC` and `WA` removed, and only the first provider listed kept, since the source packs several into one field.
+8. **Outlier check** — the quartile method (IQR) applied. The *outliers* it finds, such as a 1999 Ford Ranger, were kept, because they are true records inside a *dataset* that spans 27 years.
 
-| Figura | Gráfico | Descrição |
+---
+
+## Analysis and Visualisations (`II-analysis.ipynb`)
+
+### Part II — Fleet Overview
+
+| Figure | Chart | Description |
 | --- | --- | --- |
-| Fig. 1 | Barras horizontais | Top 10 marcas com mais veículos registrados |
-| Fig. 2 | Pizza | Proporção entre BEVs e PHEVs na frota |
-| Fig. 3 | Área | Curva de crescimento anual dos registros |
-| Fig. 4 | Barras empilhadas | Correlação entre tipo de veículo e elegibilidade *CAFV* |
-| Fig. 5 | Funil | Top 15 cidades com mais veículos registrados |
+| Fig. 1 | Horizontal bars | Top 10 makes by vehicles registered |
+| Fig. 2 | Pie | BEV and PHEV share of the fleet |
+| Fig. 3 | Area | Model year profile of the fleet |
+| Fig. 4 | Stacked bars | Vehicle type against *CAFV* eligibility |
+| Fig. 5 | Funnel | Top 15 cities by vehicles registered |
 
-### Parte III — Autonomia e Evolução Tecnológica
+### Part III — Range and Technological Evolution
 
-| Figura | Gráfico | Período |
+| Figure | Chart | Period |
 | --- | --- | --- |
 | Fig. 6 | *Scatter plot* | 2015 – 2019 |
 | Fig. 7 | *Scatter plot* | 2020 – 2026 |
 
-Os *scatter plots* relacionam quantidade de registros com autonomia média por modelo, permitindo comparar a diversidade de tecnologias entre os dois períodos e identificar marcas dominantes.
+The *scatter plots* set the number of registrations against the mean range per model, which makes it possible to compare the diversity of technologies between the two periods and to spot the dominant makes.
 
-### Parte IV — *Marketshare*
+### Part IV — *Market Share*
 
-| Figura | Gráfico | Descrição |
+| Figure | Chart | Description |
 | --- | --- | --- |
-| Fig. 8 | *Treemap* | *Marketshare* geral por fabricante (em %) |
+| Fig. 8 | *Treemap* | Overall *market share* by manufacturer (%) |
 
 ---
 
-## Explicação das Colunas
+## The Columns
 
-Abaixo estão as colunas do *dataset* original. As ~~riscadas~~ foram removidas durante a limpeza; as **em negrito** foram utilizadas na análise.
+Below are the columns of the original *dataset*. The ~~struck through~~ ones were removed during cleaning; the **bold** ones were used in the analysis.
 
-| Coluna Original | Status | Descrição |
+| Original Column | Status | Description |
 | --- | --- | --- |
-| ~~VIN (1-10)~~ | Removida | Número do chassi do veículo |
-| **County** | Mantida | Condado onde o veículo está registrado |
-| **City** | Mantida | Cidade onde o veículo está registrado |
-| ~~State~~ | Removida | Estado (todos são Washington) |
-| ~~Postal Code~~ | Removida | Código postal, similar ao CEP no Brasil |
-| **Model Year** | Mantida | Ano de fabricação do veículo |
-| **Make** | Mantida | Montadora/fabricante |
-| **Model** | Mantida | Modelo do veículo |
-| **Electric Vehicle Type** | Mantida | Tipo: BEV (totalmente elétrico) ou PHEV (híbrido) |
-| ~~Clean Alternative Fuel Vehicle (CAFV) Eligibility~~ → **CAFV Status** | Renomeada | Aptidão ao incentivo fiscal (exige autonomia ≥ 30 milhas / ~48 km) |
-| **Electric Range** | Mantida | Autonomia em milhas com a bateria carregada |
-| ~~Legislative District~~ | Removida | Código do distrito legislativo |
-| ~~DOL Vehicle ID~~ | Removida | ID de registro no *Department of Licensing* (similar ao DETRAN) |
-| ~~Vehicle Location~~ | Removida | Coordenadas geográficas do veículo |
-| **Electric Utility** | Mantida | Fornecedor de energia elétrica associado ao veículo |
-| ~~2020 Census Tract~~ | Removida | Código identificador da pesquisa censitária |
-| **Vehicle Age** *(criada)* | Nova | Idade do veículo em anos (`2026 - Model Year`) |
+| ~~VIN (1-10)~~ | Removed | The vehicle's chassis number |
+| **County** | Kept | County the vehicle is registered in |
+| **City** | Kept | City the vehicle is registered in |
+| ~~State~~ | Removed | State (all of them Washington) |
+| ~~Postal Code~~ | Removed | Postal code |
+| **Model Year** | Kept | Year the vehicle was built |
+| **Make** | Kept | Manufacturer |
+| **Model** | Kept | Model of the vehicle |
+| **Electric Vehicle Type** | Kept | Type: BEV (fully electric) or PHEV (plug-in hybrid) |
+| ~~Clean Alternative Fuel Vehicle (CAFV) Eligibility~~ → **CAFV Status** | Renamed | Eligibility for the tax incentive (requires a range of ≥ 30 miles / ~48 km) |
+| **Electric Range** | Kept | Range in miles on a charged battery |
+| ~~Legislative District~~ | Removed | Legislative district code |
+| ~~DOL Vehicle ID~~ | Removed | Registration id at the *Department of Licensing* |
+| ~~Vehicle Location~~ | Removed | The vehicle's geographic coordinates |
+| **Electric Utility** | Kept | Electricity provider associated with the vehicle |
+| ~~2020 Census Tract~~ | Removed | Census tract identifier |
+| **Vehicle Age** *(created)* | New | The vehicle's age in years (`2026 - Model Year`) |
 
 ---
 
-## Convenções Utilizadas
+## Typographic Conventions
 
-- *Itálico:* palavras estrangeiras ou termos técnicos.
-- **Negrito:** informações importantes.
-- ~~Riscado:~~ colunas, valores ou elementos removidos durante o processo.
+- *Italics:* foreign or technical terms.
+- **Bold:** the important claim.
+- ~~Strikethrough:~~ columns, values or elements removed along the way.
 
 ---
 
-## Bibliotecas Utilizadas
+## Libraries Used
 
-| Biblioteca | Uso | Documentação |
+| Library | Use | Documentation |
 | --- | --- | --- |
-| Pandas | Manipulação e análise de dados | [pandas.pydata.org](https://pandas.pydata.org/docs/) |
-| NumPy | Operações numéricas e tratamento de tipos | [numpy.org](https://numpy.org/doc/2.4/) |
-| Plotly Express | Visualizações interativas | [plotly.com/python](https://plotly.com/python/) |
-| Matplotlib | Suporte a visualizações auxiliares | [matplotlib.org](https://matplotlib.org/stable/index.html) |
+| pandas | Data manipulation and analysis | [pandas.pydata.org](https://pandas.pydata.org/docs/) |
+| NumPy | Numeric operations and type handling | [numpy.org](https://numpy.org/doc/2.4/) |
+| Plotly Express | Interactive visualisations | [plotly.com/python](https://plotly.com/python/) |
+| Matplotlib | Auxiliary visual support | [matplotlib.org](https://matplotlib.org/stable/index.html) |
 
 ---
 
-## ⚠️ Aviso sobre os Gráficos (Plotly)
+## ⚠️ A Note on the Charts (Plotly)
 
-O *Plotly* gera gráficos **interativos** no *Jupyter Notebook* — é possível dar zoom, filtrar e explorar os dados diretamente no gráfico. Por esse motivo, ao visualizar os *notebooks* pelo GitHub, as figuras podem **não ser renderizadas**.
+*Plotly* draws **interactive** charts in the *Jupyter Notebook* — they can be zoomed, filtered and explored directly. That is also why the figures may **fail to render** when the *notebooks* are viewed on GitHub.
 
-Todas as imagens estáticas estão salvas na pasta `/imagens`.
+The static images are saved in the `images/` folder.
 
-**Para a melhor experiência, recomenda-se rodar localmente, no Google Colab ou no Kaggle.**
+**For the best experience, run the notebooks locally, on Google Colab or on Kaggle.**
 
-> ⚠️ Para os *scatter plots* (Figs. 6 e 7) e o *treemap* (Fig. 8), **não é recomendado usar PNG** como exportação, pois esses gráficos perdem informação relevante no formato estático.
+> ⚠️ For the *scatter plots* (Figs. 6 and 7) and the *treemap* (Fig. 8), **PNG is not recommended**: those charts lose real information once flattened.
 
-## ⚠️ Aviso base de dados
+## ⚠️ A Note on the Dataset
 
-**Baixe a base de dados! Como novos dados são adcionados frequentemente, isso poderia "quebrar" certos comandos. Então decidi por baixar a versão isolado do dia que baixei, disponível na pasta `base_de_dados`**
+**The raw export is committed to the repository, in `data/raw/`.** Because new data is added to the live file continuously, re-downloading it would "break" the counts throughout the analysis, so the version frozen on the day it was downloaded is the one analysed here.
