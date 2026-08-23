@@ -7,6 +7,9 @@ Plotly does not render on GitHub, so a new figure is not finished until its
 PNG has been exported into `images/` and referenced from the README.
 """
 
+import importlib.util
+from pathlib import Path
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -197,21 +200,25 @@ def registration_map(frame: pd.DataFrame) -> go.Figure:
     notebook still runs with no network. One bubble per geocoded point, its
     area proportional to the registrations sitting on it — which is the
     granularity the DOL publishes, not a choice made here.
+
+    Size carries the count and nothing else does. Colouring by the same
+    number as well looked informative and was not: registrations run 6518:1
+    across the points, so a linear scale painted 800 of the 825 the same dark
+    end of the ramp and spent a legend on it.
     """
     fig = px.scatter_geo(
         frame,
         lon="Longitude",
         lat="Latitude",
         size="Registrations",
-        color="Registrations",
         hover_name="City",
         scope="usa",
         fitbounds="locations",
-        size_max=38,
-        opacity=0.75,
-        color_continuous_scale="Viridis",
+        size_max=40,
+        opacity=0.6,
+        color_discrete_sequence=[VEHICLE_TYPE_COLOURS["BEV"]],
         width=1000,
-        height=650,
+        height=520,
         title="<b>Figure 5: Where the Fleet Is Registered</b>",
     )
     fig.update_layout(title_x=0.5)
@@ -331,14 +338,22 @@ def range_vs_volume_scatter(
     linear axis pinned 84% of the models into the left tenth of the plot —
     hence the log scale.
 
-    Only the extremes are labelled, because a chart that needs a mouse is a
-    chart that cannot be exported to `images/`.
+    Only three points per panel are labelled — the busiest model and the two
+    longest-legged — because a chart that needs a mouse is a chart that cannot
+    be exported to `images/`, and because labelling the top three by volume as
+    well stacked three names on top of each other in the later panel, where
+    the busiest models all sit at much the same height. They are set to the
+    left of their marker for the same reason: the busiest model is at the
+    right edge of its panel by definition, and a label sitting to its right
+    is a label half outside the image.
     """
     labelled = frame.copy()
     labelled["Label"] = ""
     for _, panel in frame.groupby("Period"):
-        notable = set(panel.nlargest(label_count, "Registrations").index)
-        notable |= set(panel.nlargest(2, "Median Electric Range").index)
+        notable = set(panel.nlargest(1, "Registrations").index)
+        notable |= set(
+            panel.nlargest(label_count - 1, "Median Electric Range").index
+        )
         labelled.loc[sorted(notable), "Label"] = frame.loc[
             sorted(notable), "Model"
         ]
@@ -353,6 +368,7 @@ def range_vs_volume_scatter(
         hover_name="Model",
         hover_data={"Coverage": ":.0%", "Label": False},
         color_discrete_map=VEHICLE_TYPE_COLOURS,
+        category_orders={"Electric Vehicle Type": ["BEV", "PHEV"]},
         labels={
             "Median Electric Range": "Median electric range (miles)",
             "Registrations": "Registrations (log scale)",
@@ -363,6 +379,46 @@ def range_vs_volume_scatter(
         title="<b>Figure 8: Median Range Against Volume Registered, "
         "by Model</b>",
     )
-    fig.update_traces(textposition="top center", marker={"size": 9})
+    fig.update_traces(
+        textposition="top left", marker={"size": 9}, cliponaxis=False
+    )
     fig.update_layout(title_x=0.5, legend_title="Type")
     return fig
+
+
+def export_figures(
+    figures: dict[str, go.Figure], directory: str = "images", scale: int = 2
+) -> pd.DataFrame:
+    """Write each figure to `directory` as a PNG, and report what was written.
+
+    Plotly does not render on GitHub, so these files are the whole of what a
+    reader sees without executing anything — which is why a figure is not
+    finished until its PNG exists and the README links it.
+
+    Exporting needs `kaleido`, which is a development dependency and not a
+    runtime one. Without it this writes nothing and says so, rather than
+    failing a notebook that is complete in every other respect: the analysis
+    does not depend on the export, only the shop window does.
+    """
+    if importlib.util.find_spec("kaleido") is None:
+        return pd.DataFrame(
+            {
+                "File": list(figures),
+                "Written": "no — install kaleido to export",
+                "KB": pd.NA,
+            }
+        )
+    target = Path(directory)
+    target.mkdir(exist_ok=True)
+    written = []
+    for name, figure in figures.items():
+        path = target / f"{name}.png"
+        figure.write_image(path, scale=scale)
+        written.append(
+            {
+                "File": path.as_posix(),
+                "Written": "yes",
+                "KB": round(path.stat().st_size / 1024),
+            }
+        )
+    return pd.DataFrame(written)

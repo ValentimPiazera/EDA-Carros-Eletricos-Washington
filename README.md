@@ -71,6 +71,12 @@ Both are written to run **from the repository root**, not from `notebooks/`. Loc
 | Fig. 4 | Area | Model year profile of the fleet |
 | Fig. 5 | Map | Where the fleet is registered — one bubble per geocoded point, sized by registrations |
 
+![Figure 1: top 10 makes, whole fleet against recent model years](images/figure_1.png)
+![Figure 2: top 10 models in the fleet](images/figure_2.png)
+![Figure 3: BEV and PHEV share of each model year](images/figure_3.png)
+![Figure 4: model year profile of the fleet](images/figure_4.png)
+![Figure 5: where the fleet is registered](images/figure_5.png)
+
 *CAFV* eligibility is not charted, because the rule `Electric Range >= 30` explains 100% of the statuses the DOL has ruled on — the column repeats the range column, and a chart of it would silently show 37% of the fleet.
 
 ### Part III — Range and Technological Evolution
@@ -81,6 +87,10 @@ Both are written to run **from the repository root**, not from `notebooks/`. Loc
 | Fig. 7 | Lines | Median range by model year and type, drawn only where the DOL researched it |
 | Fig. 8 | *Scatter plot* | Median range against volume per model, one panel per period |
 
+![Figure 6: electric range distribution by vehicle type](images/figure_6.png)
+![Figure 7: median range by model year, where the DOL researched it](images/figure_7.png)
+![Figure 8: median range against volume registered, by model](images/figure_8.png)
+
 Figure 6 comes first because the column holds two populations rather than one: plug-ins sit below 50 miles with a median of 32, battery-electric cars start at 56 and peak between 200 and 225 with a median of 215. It is also why the quartile test in the cleaning notebook found nothing — pooled across both types, the fence runs from -248 to 493 miles, wider than the data itself. Figure 7 answers the question directly and shows what the file cannot answer: the BEV line stops at model year 2020, because from 2021 on the DOL researched the range of 4% of them and then none at all, while plug-in coverage stays at 100% throughout. Figure 8 then sets registrations against the median range per model, with a panel per period. Only models with researched coverage appear, so that both axes of a point describe the same vehicles — which is why the 2020 – 2026 panel holds 17% of that window's registrations and, of its 61 models, 59 plug-in hybrids against 2 battery-electric cars.
 
 ### Part IV — *Market Share*
@@ -88,6 +98,8 @@ Figure 6 comes first because the column holds two populations rather than one: p
 | Figure | Chart | Description |
 | --- | --- | --- |
 | Fig. 9 | Lines and bars | Leader share, top-three share and number of makes present, by model year |
+
+![Figure 9: concentration by model year](images/figure_9.png)
 
 The table of every make's share of the fleet stays, and figure 9 is what stops it being read as the present tense: concentration peaked at model year 2020 and has fallen every year since, while the number of makes on sale nearly doubled. The treemap that used to sit here repeated figure 1's top ten in the same order, and rounding each share to one decimal gave twelve real makes an area of zero.
 
@@ -142,7 +154,7 @@ Below are the columns of the original *dataset*. The ~~struck through~~ ones wer
 
 *Plotly* draws **interactive** charts in the *Jupyter Notebook* — they can be zoomed, filtered and explored directly. That is also why the figures may **fail to render** when the *notebooks* are viewed on GitHub.
 
-The static images are saved in the `images/` folder.
+The static images above are exported from the notebook itself, by its last cell, so they cannot drift from the analysis that produced them. They live in `images/`.
 
 **For the best experience, run the notebooks locally, on Google Colab or on Kaggle.**
 
