@@ -74,13 +74,6 @@ def top_makes(frame: pd.DataFrame, count: int = 10) -> pd.DataFrame:
     return makes.head(count)
 
 
-def vehicle_type_counts(frame: pd.DataFrame) -> pd.DataFrame:
-    """Return the BEV/PHEV split of the fleet."""
-    types = frame["Electric Vehicle Type"].value_counts().reset_index()
-    types.columns = ["Type", "Registrations"]
-    return types
-
-
 def registrations_by_year(frame: pd.DataFrame) -> pd.DataFrame:
     """Return how many surviving vehicles carry each model year.
 
@@ -103,6 +96,68 @@ def top_cities(frame: pd.DataFrame, count: int = 15) -> pd.DataFrame:
     return cities.sort_values(
         by="Registrations", ascending=True, ignore_index=True
     )
+
+
+def top_models(frame: pd.DataFrame, count: int = 10) -> pd.DataFrame:
+    """Return the `count` individual models with the most registrations.
+
+    Aggregating by make hides where the concentration actually sits: two
+    Teslas alone are a third of the fleet, and no manufacturer-level chart
+    shows that.
+    """
+    models = frame.assign(
+        Model=frame["Make"] + " " + frame["Model"]
+    ).value_counts(["Model", "Electric Vehicle Type"])
+    models = models.reset_index(name="Registrations")
+    return models.head(count)
+
+
+def type_mix_by_year(
+    frame: pd.DataFrame, min_registrations: int = 500
+) -> pd.DataFrame:
+    """Return the BEV/PHEV share of each model year.
+
+    The fleet-wide 79.8/20.2 split is an accumulation and hides the movement
+    entirely: plug-ins were 46.4% of model year 2017, fell to 12.8% by 2023
+    and came back to 21.7% by 2025. Model years too small to be read as a mix
+    are dropped rather than drawn as noise.
+    """
+    counts = frame.value_counts(["Model Year", "Electric Vehicle Type"])
+    counts = counts.reset_index(name="Registrations")
+    totals = counts.groupby("Model Year")["Registrations"].transform("sum")
+    counts["Share"] = (counts["Registrations"] / totals * 100).round(1)
+    counts["Year Total"] = totals
+    kept = counts[counts["Year Total"] >= min_registrations]
+    return kept.sort_values(
+        ["Model Year", "Electric Vehicle Type"], ignore_index=True
+    )
+
+
+def concentration_by_year(
+    frame: pd.DataFrame, min_registrations: int = 500
+) -> pd.DataFrame:
+    """Return how concentrated each model year's makes are.
+
+    The fleet-wide share table says Tesla holds 40.7% and stops there. Split
+    by model year, the same counts say something the accumulated figure
+    cannot: concentration peaked in 2021 and has fallen every year since,
+    while the number of makes on sale nearly doubled.
+    """
+    rows = []
+    for year, group in frame.groupby("Model Year"):
+        if len(group) < min_registrations:
+            continue
+        shares = group["Make"].value_counts(normalize=True) * 100
+        rows.append(
+            {
+                "Model Year": year,
+                "Leading make": shares.index[0],
+                "Leader share": round(shares.iloc[0], 1),
+                "Top 3 share": round(shares.head(3).sum(), 1),
+                "Makes present": group["Make"].nunique(),
+            }
+        )
+    return pd.DataFrame(rows)
 
 
 def registrations_by_location(frame: pd.DataFrame) -> pd.DataFrame:

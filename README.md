@@ -66,24 +66,30 @@ Both are written to run **from the repository root**, not from `notebooks/`. Loc
 | Figure | Chart | Description |
 | --- | --- | --- |
 | Fig. 1 | Grouped bars | Top 10 makes: share of the whole fleet against share of model years 2024 onwards |
-| Fig. 2 | Area | Model year profile of the fleet |
-| Fig. 3 | Map | Where the fleet is registered — one bubble per geocoded point, sized by registrations |
+| Fig. 2 | Horizontal bars | Top 10 individual models, coloured by vehicle type |
+| Fig. 3 | Stacked bars | BEV and PHEV share of each model year |
+| Fig. 4 | Area | Model year profile of the fleet |
+| Fig. 5 | Map | Where the fleet is registered — one bubble per geocoded point, sized by registrations |
 
-The BEV/PHEV split is given as a table rather than a chart: two numbers do not need a pie. *CAFV* eligibility is not charted at all, because the rule `Electric Range >= 30` explains 100% of the statuses the DOL has ruled on — the column repeats the range column, and a chart of it would silently show 37% of the fleet.
+*CAFV* eligibility is not charted, because the rule `Electric Range >= 30` explains 100% of the statuses the DOL has ruled on — the column repeats the range column, and a chart of it would silently show 37% of the fleet.
 
 ### Part III — Range and Technological Evolution
 
 | Figure | Chart | Description |
 | --- | --- | --- |
-| Fig. 4 | Lines | Median range by model year and type, drawn only where the DOL researched it |
-| Fig. 5 | *Scatter plot* | Mean range against volume per model, 2015 – 2019 |
-| Fig. 6 | *Scatter plot* | Mean range against volume per model, 2020 – 2026 |
+| Fig. 6 | Lines | Median range by model year and type, drawn only where the DOL researched it |
+| Fig. 7 | *Scatter plot* | Mean range against volume per model, 2015 – 2019 |
+| Fig. 8 | *Scatter plot* | Mean range against volume per model, 2020 – 2026 |
 
-Figure 4 answers the question directly and shows what the file cannot answer: the BEV line stops at model year 2020, because from 2021 on the DOL researched the range of 4% of them and then none at all, while plug-in coverage stays at 100% throughout. The two *scatter plots* then set the number of registrations against the mean range per model. Only models with researched coverage appear on them, so that both axes of a point describe the same vehicles — which is why the 2020 – 2026 chart holds 17% of that window's registrations and almost no BEVs.
+Figure 6 answers the question directly and shows what the file cannot answer: the BEV line stops at model year 2020, because from 2021 on the DOL researched the range of 4% of them and then none at all, while plug-in coverage stays at 100% throughout. The two *scatter plots* then set the number of registrations against the mean range per model. Only models with researched coverage appear on them, so that both axes of a point describe the same vehicles — which is why the 2020 – 2026 chart holds 17% of that window's registrations and almost no BEVs.
 
 ### Part IV — *Market Share*
 
-A table of every make's share of the fleet, with no chart. The treemap that used to sit here repeated figure 1's top ten in the same order, and rounding each share to one decimal gave twelve real makes an area of zero.
+| Figure | Chart | Description |
+| --- | --- | --- |
+| Fig. 9 | Lines and bars | Leader share, top-three share and number of makes present, by model year |
+
+The table of every make's share of the fleet stays, and figure 9 is what stops it being read as the present tense: concentration peaked at model year 2020 and has fallen every year since, while the number of makes on sale nearly doubled. The treemap that used to sit here repeated figure 1's top ten in the same order, and rounding each share to one decimal gave twelve real makes an area of zero.
 
 ---
 
@@ -140,7 +146,7 @@ The static images are saved in the `images/` folder.
 
 **For the best experience, run the notebooks locally, on Google Colab or on Kaggle.**
 
-> ⚠️ For the map (Fig. 3) and the *scatter plots* (Figs. 5 and 6), **PNG is not recommended**: those charts lose real information once flattened — the map in particular is worth panning and hovering.
+> ⚠️ For the map (Fig. 5) and the *scatter plots* (Figs. 7 and 8), **PNG is not recommended**: those charts lose real information once flattened — the map in particular is worth panning and hovering.
 
 ## ⚠️ A Note on the Dataset
 
