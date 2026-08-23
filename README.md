@@ -77,11 +77,11 @@ Both are written to run **from the repository root**, not from `notebooks/`. Loc
 
 | Figure | Chart | Description |
 | --- | --- | --- |
-| Fig. 6 | Lines | Median range by model year and type, drawn only where the DOL researched it |
-| Fig. 7 | *Scatter plot* | Mean range against volume per model, 2015 – 2019 |
-| Fig. 8 | *Scatter plot* | Mean range against volume per model, 2020 – 2026 |
+| Fig. 6 | Overlaid bars | Range distribution by vehicle type, in bands of 25 miles |
+| Fig. 7 | Lines | Median range by model year and type, drawn only where the DOL researched it |
+| Fig. 8 | *Scatter plot* | Median range against volume per model, one panel per period |
 
-Figure 6 answers the question directly and shows what the file cannot answer: the BEV line stops at model year 2020, because from 2021 on the DOL researched the range of 4% of them and then none at all, while plug-in coverage stays at 100% throughout. The two *scatter plots* then set the number of registrations against the mean range per model. Only models with researched coverage appear on them, so that both axes of a point describe the same vehicles — which is why the 2020 – 2026 chart holds 17% of that window's registrations and almost no BEVs.
+Figure 6 comes first because the column holds two populations rather than one: plug-ins sit below 50 miles with a median of 32, battery-electric cars start at 56 and peak between 200 and 225 with a median of 215. It is also why the quartile test in the cleaning notebook found nothing — pooled across both types, the fence runs from -248 to 493 miles, wider than the data itself. Figure 7 answers the question directly and shows what the file cannot answer: the BEV line stops at model year 2020, because from 2021 on the DOL researched the range of 4% of them and then none at all, while plug-in coverage stays at 100% throughout. Figure 8 then sets registrations against the median range per model, with a panel per period. Only models with researched coverage appear, so that both axes of a point describe the same vehicles — which is why the 2020 – 2026 panel holds 17% of that window's registrations and, of its 61 models, 59 plug-in hybrids against 2 battery-electric cars.
 
 ### Part IV — *Market Share*
 
@@ -146,7 +146,7 @@ The static images are saved in the `images/` folder.
 
 **For the best experience, run the notebooks locally, on Google Colab or on Kaggle.**
 
-> ⚠️ For the map (Fig. 5) and the *scatter plots* (Figs. 7 and 8), **PNG is not recommended**: those charts lose real information once flattened — the map in particular is worth panning and hovering.
+> ⚠️ For the map (Fig. 5) and the *scatter plot* (Fig. 8), **PNG is not recommended**: those charts lose real information once flattened — the map in particular is worth panning and hovering. Figure 8 labels its extremes precisely so that the flattened version still says something.
 
 ## ⚠️ A Note on the Dataset
 

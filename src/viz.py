@@ -20,12 +20,10 @@ from src import cleaning
 # random sample of a model year. The two figures that draw shares stop here.
 LAST_COMPLETE_YEAR = cleaning.SNAPSHOT_YEAR - 1
 
-# The project's default qualitative palette, and the bolder sequences the two
-# scatter plots need to keep one point per model tellable apart. The map is
-# the only figure on a continuous scale, because a count is continuous.
+# The project's default qualitative palette. Only figure 1 still needs a
+# sequence: every other categorical figure splits on vehicle type, which has
+# two named colours, and the map is continuous because a count is.
 PALETTE = px.colors.qualitative.D3
-EARLY_PERIOD_PALETTE = px.colors.qualitative.Bold
-LATE_PERIOD_PALETTE = px.colors.qualitative.Alphabet
 
 # The two vehicle types are named colours rather than sequence entries, so
 # that BEV stays the same blue and PHEV the same grey wherever they appear.
@@ -221,12 +219,53 @@ def registration_map(frame: pd.DataFrame) -> go.Figure:
     return fig
 
 
+def range_distribution_bars(frame: pd.DataFrame) -> go.Figure:
+    """Figure 6: the two populations `Electric Range` actually contains.
+
+    The point is the gap between the humps. It is also the reason the
+    quartile test in `I-cleaning` came back empty: a fence drawn across both
+    types at once runs from -248 to 493 miles, which is wider than the data
+    it is meant to police, so nothing can fall outside it.
+    """
+    fig = px.bar(
+        frame,
+        x="Range band",
+        y="Registrations",
+        color="Electric Vehicle Type",
+        barmode="overlay",
+        opacity=0.85,
+        title="<b>Figure 6: Electric Range Distribution by Vehicle Type</b>",
+        labels={"Range band": "Electric range (miles, band of 25)"},
+        color_discrete_map=VEHICLE_TYPE_COLOURS,
+        template="plotly_white",
+        width=1000,
+        height=500,
+    )
+    fig.add_annotation(
+        xref="paper",
+        yref="paper",
+        x=0.98,
+        y=0.96,
+        showarrow=False,
+        align="right",
+        bordercolor="#B0B0B0",
+        borderwidth=1,
+        borderpad=6,
+        bgcolor="white",
+        text="A quartile fence drawn across both types<br>"
+        "runs from -248 to 493 miles — wider than<br>"
+        "the data, which is why it flagged nothing",
+    )
+    fig.update_layout(title_x=0.5, legend_title="Type", bargap=0.05)
+    return fig
+
+
 def range_by_year_lines(
     frame: pd.DataFrame,
     min_coverage: float = 0.5,
     min_measured: int = 30,
 ) -> go.Figure:
-    """Figure 6: median range by model year, drawn only where it was measured.
+    """Figure 7: median range by model year, drawn only where it was measured.
 
     The BEV line stops at 2020 on purpose. It is not that battery range
     stopped improving — it is that the DOL stopped researching it, and a line
@@ -247,7 +286,7 @@ def range_by_year_lines(
         y="Median Electric Range",
         color="Electric Vehicle Type",
         markers=True,
-        title="<b>Figure 6: Median Range by Model Year, Where the DOL "
+        title="<b>Figure 7: Median Range by Model Year, Where the DOL "
         "Researched It</b>",
         labels={"Median Electric Range": "Median Electric Range (miles)"},
         color_discrete_map=VEHICLE_TYPE_COLOURS,
@@ -275,43 +314,55 @@ def range_by_year_lines(
 
 
 def range_vs_volume_scatter(
-    frame: pd.DataFrame, title: str, palette: list[str]
+    frame: pd.DataFrame, label_count: int = 3
 ) -> go.Figure:
-    """Figures 7 and 8: mean range against volume, one point per model.
+    """Figure 8: median range against volume, one point per model, per period.
 
-    Only models the DOL has actually researched reach this chart, so both
-    axes describe the same vehicles. What that leaves out is itself the
-    finding for the later period: almost every recent BEV.
+    One figure with a panel each rather than two figures, so that what the
+    later panel is missing reads against the earlier one instead of being
+    asserted underneath it.
+
+    Three encodings were taken out. Volume was on the x axis *and* in the
+    bubble size, which spent the strongest channel on a variable already
+    shown and buried the crowded corner under the big markers. Colour carried
+    model identity across 55 models in an 11-colour palette, so five models
+    shared each colour; it now carries vehicle type, which is two colours and
+    means something. And volume runs 4838:1 in the earlier window, so a
+    linear axis pinned 84% of the models into the left tenth of the plot —
+    hence the log scale.
+
+    Only the extremes are labelled, because a chart that needs a mouse is a
+    chart that cannot be exported to `images/`.
     """
+    labelled = frame.copy()
+    labelled["Label"] = ""
+    for _, panel in frame.groupby("Period"):
+        notable = set(panel.nlargest(label_count, "Registrations").index)
+        notable |= set(panel.nlargest(2, "Median Electric Range").index)
+        labelled.loc[sorted(notable), "Label"] = frame.loc[
+            sorted(notable), "Model"
+        ]
     fig = px.scatter(
-        frame,
+        labelled,
         x="Registrations",
-        y="Mean Electric Range",
-        size="Registrations",
-        title=title,
-        color="Model",
-        labels={"Mean Electric Range": "Mean Electric Range (miles)"},
-        hover_data={"Coverage": ":.0%"},
-        color_discrete_sequence=palette,
+        y="Median Electric Range",
+        color="Electric Vehicle Type",
+        facet_col="Period",
+        log_x=True,
+        text="Label",
+        hover_name="Model",
+        hover_data={"Coverage": ":.0%", "Label": False},
+        color_discrete_map=VEHICLE_TYPE_COLOURS,
+        labels={
+            "Median Electric Range": "Median electric range (miles)",
+            "Registrations": "Registrations (log scale)",
+        },
         template="plotly_white",
+        width=1100,
+        height=560,
+        title="<b>Figure 8: Median Range Against Volume Registered, "
+        "by Model</b>",
     )
-    fig.update_layout(title_x=0.5)
+    fig.update_traces(textposition="top center", marker={"size": 9})
+    fig.update_layout(title_x=0.5, legend_title="Type")
     return fig
-
-
-def early_period_scatter(frame: pd.DataFrame) -> go.Figure:
-    """Figure 7: range against volume for model years 2015 to 2019."""
-    return range_vs_volume_scatter(
-        frame,
-        "<b>Figure 7: Mean Range Against Volume Registered, 2015-2019</b>",
-        EARLY_PERIOD_PALETTE,
-    )
-
-
-def late_period_scatter(frame: pd.DataFrame) -> go.Figure:
-    """Figure 8: range against volume for model years 2020 to 2026."""
-    return range_vs_volume_scatter(
-        frame,
-        "<b>Figure 8: Mean Range Against Volume Registered, 2020-2026</b>",
-        LATE_PERIOD_PALETTE,
-    )

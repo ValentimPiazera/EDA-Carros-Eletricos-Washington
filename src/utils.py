@@ -204,6 +204,29 @@ def make_share_by_era(
     )
 
 
+def range_distribution(frame: pd.DataFrame, band: int = 25) -> pd.DataFrame:
+    """Return how many vehicles of each type fall in each range band.
+
+    Binned here rather than in the browser: a Plotly histogram ships every
+    value it is given, and 99,977 of them would weigh more than the notebook
+    they sit in. The counts are what the figure needs anyway.
+    """
+    known = frame[frame["Electric Range"].notna()]
+    edges = list(range(0, int(known["Electric Range"].max()) + band + 1, band))
+    bands = pd.cut(known["Electric Range"], bins=edges)
+    counts = (
+        known.groupby([bands, "Electric Vehicle Type"], observed=True)
+        .size()
+        .reset_index(name="Registrations")
+    )
+    counts["Range band"] = (
+        counts["Electric Range"].apply(lambda edge: edge.left).astype(int)
+    )
+    return counts.drop(columns=["Electric Range"]).sort_values(
+        ["Range band", "Electric Vehicle Type"], ignore_index=True
+    )
+
+
 def range_by_model_year(frame: pd.DataFrame) -> pd.DataFrame:
     """Return the median range per model year and type, with its coverage.
 
@@ -233,17 +256,17 @@ def models_by_period(
     last_year: int,
     min_coverage: float = 0.5,
 ) -> pd.DataFrame:
-    """Return mean range and volume per model, for a period, where comparable.
+    """Return median range and volume per model, where the two are comparable.
 
-    Make, model and type are concatenated into a single label so that each
-    point identifies one car.
+    The median rather than the mean, and for the same reason figure 7 uses
+    one: a model that runs across five model years carries a different rating
+    in each, so the average of them describes no version of the car. The Leaf
+    spans 73 to 151 miles inside the 2015-2019 window alone.
 
-    Both numbers are drawn honestly. The count used to come from `Model Year`,
-    which counts every row in the group, while the mean skipped the `NaN`s —
-    so a model's height came from the rows the DOL had researched and its
-    width from all of them. For the Tesla Model Y that meant a mean built from
-    4% of 57,163 registrations, all of them model year 2020, plotted against a
-    bubble sized by the whole 2020-2026 window. `Coverage` now travels with
+    Both numbers are drawn from the same rows. The count used to come from
+    `Model Year`, which counts every row in the group, while the average
+    skipped the `NaN`s — so a model's height came from the rows the DOL had
+    researched and its width from all of them. `Coverage` now travels with
     every row, and a model the DOL has barely researched is left out rather
     than drawn as though it were measured.
     """
@@ -253,29 +276,37 @@ def models_by_period(
     ]
     grouped = period.groupby(["Make", "Model", "Electric Vehicle Type"]).agg(
         **{
-            "Mean Electric Range": ("Electric Range", "mean"),
+            "Median Electric Range": ("Electric Range", "median"),
             "Registrations": ("Electric Range", "size"),
             "Measured": ("Electric Range", "count"),
         }
     )
     grouped = grouped.reset_index()
     grouped["Coverage"] = grouped["Measured"] / grouped["Registrations"]
-    grouped["Model"] = (
-        grouped["Make"]
-        + " "
-        + grouped["Model"]
-        + " "
-        + grouped["Electric Vehicle Type"]
-    )
+    grouped["Model"] = grouped["Make"] + " " + grouped["Model"]
     comparable = grouped[
         (grouped["Measured"] > 0) & (grouped["Coverage"] >= min_coverage)
-    ].copy()
-    comparable["Mean Electric Range"] = comparable[
-        "Mean Electric Range"
-    ].round()
-    return comparable.drop(
-        columns=["Make", "Electric Vehicle Type", "Measured"]
-    )
+    ]
+    return comparable.drop(columns=["Make", "Measured"]).reset_index(drop=True)
+
+
+def models_by_periods(
+    frame: pd.DataFrame,
+    periods: tuple[tuple[int, int], ...] = ((2015, 2019), (2020, 2026)),
+    min_coverage: float = 0.5,
+) -> pd.DataFrame:
+    """Stack several periods into one frame, labelled for faceting.
+
+    Drawn as one figure with a panel each rather than two figures, so that
+    what the later panel is missing is visible against the earlier one
+    instead of being asserted in the prose underneath it.
+    """
+    parts = []
+    for first_year, last_year in periods:
+        part = models_by_period(frame, first_year, last_year, min_coverage)
+        part["Period"] = f"{first_year}–{last_year}"
+        parts.append(part)
+    return pd.concat(parts, ignore_index=True)
 
 
 def market_share(frame: pd.DataFrame) -> pd.DataFrame:

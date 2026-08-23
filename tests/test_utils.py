@@ -47,6 +47,21 @@ def models(rows):
     )
 
 
+def test_the_range_bands_count_each_type_separately():
+    frame = ranges(["PHEV", "PHEV", "BEV", "BEV"], [20.0, 30.0, 215.0, 220.0])
+    bands = utils.range_distribution(frame, band=25).set_index(
+        ["Range band", "Electric Vehicle Type"]
+    )["Registrations"]
+    assert bands[(0, "PHEV")] == 1
+    assert bands[(25, "PHEV")] == 1
+    assert bands[(200, "BEV")] == 2
+
+
+def test_a_missing_range_lands_in_no_band():
+    frame = ranges(["BEV", "BEV"], [np.nan, 215.0])
+    assert utils.range_distribution(frame)["Registrations"].sum() == 1
+
+
 def test_the_range_series_carries_the_coverage_behind_each_median():
     frame = models(
         [
@@ -74,7 +89,7 @@ def test_a_model_the_dol_barely_researched_is_left_out():
         ]
     )
     plotted = utils.models_by_period(frame, 2020, 2026)
-    assert list(plotted["Model"]) == ["JEEP WRANGLER PHEV"]
+    assert list(plotted["Model"]) == ["JEEP WRANGLER"]
 
 
 def test_the_volume_of_a_plotted_model_counts_only_measured_rows_too():
@@ -87,7 +102,31 @@ def test_the_volume_of_a_plotted_model_counts_only_measured_rows_too():
     plotted = utils.models_by_period(frame, 2020, 2026).iloc[0]
     assert plotted["Registrations"] == 2
     assert plotted["Coverage"] == 1.0
-    assert plotted["Mean Electric Range"] == 21.0
+    assert plotted["Median Electric Range"] == 21.0
+
+
+def test_a_model_is_summarised_by_its_median_not_its_mean():
+    frame = models(
+        [
+            ["NISSAN", "LEAF", "BEV", 2015, 84.0],
+            ["NISSAN", "LEAF", "BEV", 2016, 84.0],
+            ["NISSAN", "LEAF", "BEV", 2018, 151.0],
+        ]
+    )
+    plotted = utils.models_by_period(frame, 2015, 2019).iloc[0]
+    assert plotted["Median Electric Range"] == 84.0
+
+
+def test_each_period_is_labelled_for_its_own_panel():
+    frame = models(
+        [
+            ["NISSAN", "LEAF", "BEV", 2016, 84.0],
+            ["JEEP", "WRANGLER", "PHEV", 2023, 21.0],
+        ]
+    )
+    stacked = utils.models_by_periods(frame)
+    assert list(stacked["Period"]) == ["2015–2019", "2020–2026"]
+    assert list(stacked["Model"]) == ["NISSAN LEAF", "JEEP WRANGLER"]
 
 
 def fleet(rows):
