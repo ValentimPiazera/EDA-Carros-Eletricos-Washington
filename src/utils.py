@@ -92,19 +92,6 @@ def registrations_by_year(frame: pd.DataFrame) -> pd.DataFrame:
     return years
 
 
-def cafv_by_type(frame: pd.DataFrame) -> pd.DataFrame:
-    """Return the CAFV eligibility counts within each vehicle type.
-
-    The unresearched rows are `NaN` in `CAFV Status` and `groupby` drops them,
-    so this counts only the vehicles the DOL has actually ruled on.
-    """
-    return (
-        frame.groupby(["Electric Vehicle Type", "CAFV Status"])
-        .size()
-        .reset_index(name="Registrations")
-    )
-
-
 def top_cities(frame: pd.DataFrame, count: int = 15) -> pd.DataFrame:
     """Return the `count` cities with the most vehicles, ascending.
 
@@ -118,41 +105,122 @@ def top_cities(frame: pd.DataFrame, count: int = 15) -> pd.DataFrame:
     )
 
 
-def models_by_period(
-    frame: pd.DataFrame, first_year: int, last_year: int
+def registrations_by_location(frame: pd.DataFrame) -> pd.DataFrame:
+    """Return one row per geocoded point, with how many cars sit on it.
+
+    The DOL geocodes a registration to the centroid of its postal area, so
+    270 thousand vehicles collapse onto 825 points. Aggregating to those
+    points is not a simplification imposed here — it is the granularity the
+    source actually has, and drawing one dot per car would invent precision
+    the file never had. The 78 rows with no location at all are dropped.
+    """
+    located = frame.dropna(subset=["Longitude", "Latitude"])
+    points = located.groupby(["City", "Longitude", "Latitude"]).size()
+    return points.reset_index(name="Registrations").sort_values(
+        "Registrations", ascending=False, ignore_index=True
+    )
+
+
+def make_share_by_era(
+    frame: pd.DataFrame, recent_from: int = 2024, count: int = 10
 ) -> pd.DataFrame:
-    """Return mean range and registration count per model, for a period.
+    """Return each top make's share of the whole fleet and of recent years.
+
+    Figure 1 on its own ranks a decade of accumulation, which is why
+    Chevrolet and Nissan sit second and third on it: the Bolt and the Leaf
+    sold in volume years ago. Setting the fleet-wide share beside the share
+    of the newest model years turns the same counts into a statement about
+    where the market is going rather than where it has been.
+    """
+    top = frame["Make"].value_counts().head(count).index
+    recent = frame[frame["Model Year"] >= recent_from]
+    shares = pd.DataFrame(
+        {
+            "Whole fleet": frame["Make"].value_counts(normalize=True),
+            f"Model years {recent_from} onwards": recent["Make"].value_counts(
+                normalize=True
+            ),
+        }
+    )
+    shares = (shares.loc[top] * 100).round(1).fillna(0.0)
+    shares.index.name = "Make"
+    return shares.reset_index().melt(
+        id_vars="Make", var_name="Era", value_name="Share"
+    )
+
+
+def range_by_model_year(frame: pd.DataFrame) -> pd.DataFrame:
+    """Return the median range per model year and type, with its coverage.
+
+    `Coverage` is the share of that year's vehicles the DOL actually
+    researched, and it is the column that decides whether the median beside
+    it means anything. It has to travel with the figure rather than sit in a
+    footnote: for BEVs it falls off a cliff after model year 2020 — 4.2% in
+    2021 and zero in most years after — while for PHEVs it stays at 100%
+    throughout. A median drawn from 0.3% of a year is not a measurement of
+    that year.
+    """
+    grouped = frame.groupby(["Model Year", "Electric Vehicle Type"]).agg(
+        **{
+            "Registrations": ("Electric Range", "size"),
+            "Measured": ("Electric Range", "count"),
+            "Median Electric Range": ("Electric Range", "median"),
+        }
+    )
+    grouped = grouped.reset_index()
+    grouped["Coverage"] = grouped["Measured"] / grouped["Registrations"]
+    return grouped
+
+
+def models_by_period(
+    frame: pd.DataFrame,
+    first_year: int,
+    last_year: int,
+    min_coverage: float = 0.5,
+) -> pd.DataFrame:
+    """Return mean range and volume per model, for a period, where comparable.
 
     Make, model and type are concatenated into a single label so that each
-    point in figures 6 and 7 identifies one car. Models whose mean range is
-    `NaN` are dropped, which from model year 2021 on is most of them: the
-    result describes the subsample the DOL has researched, not the market.
+    point identifies one car.
+
+    Both numbers are drawn honestly. The count used to come from `Model Year`,
+    which counts every row in the group, while the mean skipped the `NaN`s —
+    so a model's height came from the rows the DOL had researched and its
+    width from all of them. For the Tesla Model Y that meant a mean built from
+    4% of 57,163 registrations, all of them model year 2020, plotted against a
+    bubble sized by the whole 2020-2026 window. `Coverage` now travels with
+    every row, and a model the DOL has barely researched is left out rather
+    than drawn as though it were measured.
     """
     period = frame[
         (frame["Model Year"] >= first_year)
         & (frame["Model Year"] <= last_year)
     ]
-    period = period.groupby(["Make", "Model", "Electric Vehicle Type"]).agg(
-        {"Electric Range": "mean", "Model Year": "count"}
-    )
-    period = period.reset_index()
-    period["Model"] = (
-        period["Make"]
-        + " "
-        + period["Model"]
-        + " "
-        + period["Electric Vehicle Type"]
-    )
-    period = period.rename(
-        columns={
-            "Model Year": "Registrations",
-            "Electric Range": "Mean Electric Range",
+    grouped = period.groupby(["Make", "Model", "Electric Vehicle Type"]).agg(
+        **{
+            "Mean Electric Range": ("Electric Range", "mean"),
+            "Registrations": ("Electric Range", "size"),
+            "Measured": ("Electric Range", "count"),
         }
     )
-    period = period.dropna()
-    period = period.drop(columns=["Make", "Electric Vehicle Type"])
-    period["Mean Electric Range"] = period["Mean Electric Range"].round()
-    return period
+    grouped = grouped.reset_index()
+    grouped["Coverage"] = grouped["Measured"] / grouped["Registrations"]
+    grouped["Model"] = (
+        grouped["Make"]
+        + " "
+        + grouped["Model"]
+        + " "
+        + grouped["Electric Vehicle Type"]
+    )
+    comparable = grouped[
+        (grouped["Measured"] > 0) & (grouped["Coverage"] >= min_coverage)
+    ].copy()
+    comparable["Mean Electric Range"] = comparable[
+        "Mean Electric Range"
+    ].round()
+    return comparable.drop(
+        columns=["Make", "Electric Vehicle Type", "Measured"]
+    )
 
 
 def market_share(frame: pd.DataFrame) -> pd.DataFrame:

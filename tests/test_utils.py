@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pytest
 
 from src import utils
 
@@ -31,6 +32,62 @@ def test_each_flagged_row_names_the_rule_it_broke():
 
 def test_a_missing_range_is_nothing_to_complain_about():
     assert utils.implausible_range(ranges(["BEV"], [np.nan])).empty
+
+
+def models(rows):
+    return pd.DataFrame(
+        rows,
+        columns=[
+            "Make",
+            "Model",
+            "Electric Vehicle Type",
+            "Model Year",
+            "Electric Range",
+        ],
+    )
+
+
+def test_the_range_series_carries_the_coverage_behind_each_median():
+    frame = models(
+        [
+            ["TESLA", "MODEL Y", "BEV", 2023, np.nan],
+            ["TESLA", "MODEL Y", "BEV", 2023, np.nan],
+            ["TESLA", "MODEL Y", "BEV", 2023, 300.0],
+            ["JEEP", "WRANGLER", "PHEV", 2023, 21.0],
+        ]
+    )
+    series = utils.range_by_model_year(frame).set_index(
+        "Electric Vehicle Type"
+    )
+    assert series.loc["BEV", "Coverage"] == pytest.approx(1 / 3)
+    assert series.loc["PHEV", "Coverage"] == 1.0
+    assert series.loc["BEV", "Registrations"] == 3
+
+
+def test_a_model_the_dol_barely_researched_is_left_out():
+    frame = models(
+        [
+            ["TESLA", "MODEL Y", "BEV", 2023, np.nan],
+            ["TESLA", "MODEL Y", "BEV", 2023, np.nan],
+            ["TESLA", "MODEL Y", "BEV", 2023, 300.0],
+            ["JEEP", "WRANGLER", "PHEV", 2023, 21.0],
+        ]
+    )
+    plotted = utils.models_by_period(frame, 2020, 2026)
+    assert list(plotted["Model"]) == ["JEEP WRANGLER PHEV"]
+
+
+def test_the_volume_of_a_plotted_model_counts_only_measured_rows_too():
+    frame = models(
+        [
+            ["JEEP", "WRANGLER", "PHEV", 2023, 21.0],
+            ["JEEP", "WRANGLER", "PHEV", 2024, 21.0],
+        ]
+    )
+    plotted = utils.models_by_period(frame, 2020, 2026).iloc[0]
+    assert plotted["Registrations"] == 2
+    assert plotted["Coverage"] == 1.0
+    assert plotted["Mean Electric Range"] == 21.0
 
 
 def test_the_quartile_test_returns_the_rows_outside_the_fence():
