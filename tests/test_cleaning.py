@@ -179,6 +179,24 @@ def test_the_export_check_passes_on_what_the_pipeline_produces():
     assert counts["columns"] == 12
 
 
+def test_a_vehicle_type_the_project_has_never_seen_survives_visibly():
+    verbose = "Fuel Cell Electric Vehicle (FCEV)"
+    cleaned = cleaning.abbreviate_vehicle_type(
+        pd.DataFrame({"Electric Vehicle Type": [verbose]})
+    )
+    assert list(cleaned["Electric Vehicle Type"]) == [verbose]
+
+
+def test_the_export_check_refuses_a_type_outside_the_mapping():
+    broken = cleaning.clean(
+        source_rows(
+            **{"Electric Vehicle Type": "Fuel Cell Electric Vehicle (FCEV)"}
+        )
+    )
+    with pytest.raises(AssertionError, match="vehicle types outside"):
+        cleaning.check_export(broken)
+
+
 def test_the_export_check_raises_on_a_point_outside_washington():
     broken = cleaning.clean(source_rows())
     broken.loc[0, "Longitude"] = -80.0

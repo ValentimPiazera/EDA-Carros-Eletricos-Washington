@@ -172,9 +172,18 @@ def shorten_cafv_status(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def abbreviate_vehicle_type(frame: pd.DataFrame) -> pd.DataFrame:
-    """Abbreviate `Electric Vehicle Type` to `BEV` and `PHEV`."""
+    """Abbreviate `Electric Vehicle Type` to `BEV` and `PHEV`.
+
+    `replace` rather than `map`, so a category the DOL adds later survives
+    under its own name instead of becoming `NaN`. Losing it silently would be
+    the worst of both worlds: the row keeps a range that no bounds were ever
+    applied to, since `range_bounds` has nothing to look up for it, and every
+    figure that splits on type drops it without saying so. `check_export`
+    refuses any type outside the mapping, so the unknown category stops the
+    pipeline rather than travelling through it.
+    """
     frame = frame.copy()
-    frame["Electric Vehicle Type"] = frame["Electric Vehicle Type"].map(
+    frame["Electric Vehicle Type"] = frame["Electric Vehicle Type"].replace(
         VEHICLE_TYPE_MAPPING
     )
     return frame
@@ -285,6 +294,11 @@ def check_export(frame: pd.DataFrame) -> pd.Series:
     line corresponds to a defect this project actually shipped at some point:
     ranges impossible for their own type, a CAFV ruling left behind by the
     range it was read off, and one city arriving under two spellings.
+
+    The vehicle type line is the one that guards the others. Every bound in
+    `PLAUSIBLE_RANGE` is looked up by type, so a type the project has never
+    heard of is a row whose range nothing validated — the check has to fail on
+    the category itself rather than wait for a consequence.
     """
     ranges = frame["Electric Range"]
     floor, ceiling = range_bounds(frame)
@@ -310,6 +324,13 @@ def check_export(frame: pd.DataFrame) -> pd.Series:
             "cities spelled more than one way": len(keys) - keys.nunique(),
             "required fields left empty": int(
                 frame[["County", "City", "Make", "Model"]].isna().sum().sum()
+            ),
+            "vehicle types outside the mapping": int(
+                (
+                    ~frame["Electric Vehicle Type"].isin(
+                        VEHICLE_TYPE_MAPPING.values()
+                    )
+                ).sum()
             ),
             "coordinates outside Washington": int(
                 sum(

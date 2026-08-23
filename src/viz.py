@@ -409,7 +409,7 @@ def export_figures(
             }
         )
     target = Path(directory)
-    target.mkdir(exist_ok=True)
+    target.mkdir(parents=True, exist_ok=True)
     written = []
     for name, figure in figures.items():
         path = target / f"{name}.png"

@@ -131,14 +131,6 @@ Below are the columns of the original *dataset*. The ~~struck through~~ ones wer
 
 ---
 
-## Typographic Conventions
-
-- *Italics:* foreign or technical terms.
-- **Bold:** the important claim.
-- ~~Strikethrough:~~ columns, values or elements removed along the way.
-
----
-
 ## Libraries Used
 
 | Library | Use | Documentation |
@@ -163,3 +155,19 @@ The static images above are exported from the notebook itself, by its last cell,
 ## ⚠️ A Note on the Dataset
 
 **The raw export is committed to the repository, in `data/raw/`.** Because new data is added to the live file continuously, re-downloading it would "break" the counts throughout the analysis, so the version frozen on the day it was downloaded is the one analysed here.
+
+---
+
+## Technical References
+
+The conventions in this repository are not invented ad hoc; each one is borrowed from a source that argues for it.
+
+| Reference | Author | What it informed here |
+| --- | --- | --- |
+| *Software Engineering for Data Scientists* | Catherine Nelson | Repository layout (`src/` — `notebooks/` — `tests/`), testing the pure transformations, linting and formatting as a definition of done |
+| *Python for Data Analysis*, 3rd edition | Wes McKinney | pandas idiom — reshaping with `melt`, `groupby` aggregation, missing-data handling |
+
+Library documentation was the reference of record for API behaviour, in preference to secondhand summaries:
+[pandas](https://pandas.pydata.org/docs/), [NumPy](https://numpy.org/doc/2.4/), [matplotlib](https://matplotlib.org/stable/index.html), [plotly](https://plotly.com/python/), [ruff](https://docs.astral.sh/ruff/), [pytest](https://docs.pytest.org/).
+
+**Claude Opus 5** (Anthropic) was used as a working assistant throughout: interpreting the data, pressure-testing conclusions, and reviewing code. Every finding it surfaced was verified against the dataset before being written down — the figures quoted in this README and in the notebooks are measured, not asserted.
