@@ -15,11 +15,10 @@ import pandas as pd
 # if it were measured against the current year.
 SNAPSHOT_YEAR = 2026
 
-# Registration plumbing and geography below city level. Dropping
-# `Vehicle Location` and `Postal Code` is what puts a map out of reach, so
-# reintroducing one means reintroducing them here.
+# Registration plumbing. `Postal Code` goes; `Vehicle Location` stays, parsed
+# into coordinates by `parse_vehicle_location`, because it is what a map is
+# drawn from.
 COLS_TO_DROP = [
-    "Vehicle Location",
     "Legislative District",
     "VIN (1-10)",
     "Postal Code",
@@ -78,6 +77,18 @@ UTILITY_SUFFIXES = [r"\s*-\s*\(WA\)$", r",?\s*\bINC\b\.?$"]
 # makes it an absence, and absences are `NaN` here as they are everywhere else.
 # Written as `.str.title()` leaves it, which is what `test_cleaning` pins.
 UNKNOWN_UTILITY = "No Known Electric Utility Service"
+
+# The source writes coordinates as `POINT (longitude latitude)`, in that
+# order — longitude first, which is the opposite of how they are usually
+# spoken. Every non-null value in the export matches this shape.
+VEHICLE_LOCATION_PATTERN = (
+    r"POINT \((?P<Longitude>-?[\d.]+) (?P<Latitude>[\d.]+)\)"
+)
+
+# Washington's bounding box, give or take. Not a border test — a sanity one:
+# a registration that lands outside this rectangle is not in the state the
+# whole dataset is about.
+WASHINGTON_BOUNDS = {"Longitude": (-125.0, -116.0), "Latitude": (45.0, 49.5)}
 
 
 def drop_incomplete_rows(frame: pd.DataFrame) -> pd.DataFrame:
@@ -141,7 +152,7 @@ def blank_unusable_range(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def drop_unused_columns(frame: pd.DataFrame) -> pd.DataFrame:
-    """Drop the seven columns the analysis asks nothing of."""
+    """Drop the six columns the analysis asks nothing of."""
     return frame.drop(columns=COLS_TO_DROP)
 
 
@@ -222,6 +233,26 @@ def standardise_city(frame: pd.DataFrame) -> pd.DataFrame:
     return frame
 
 
+def parse_vehicle_location(frame: pd.DataFrame) -> pd.DataFrame:
+    """Turn `Vehicle Location` into `Longitude` and `Latitude` columns.
+
+    The DOL geocodes each registration to the centroid of its postal area
+    rather than to an address: 270 thousand vehicles share 576 distinct
+    points. That is what makes mapping them honest — the coordinates were
+    never a claim about individual houses — and it is also why the map
+    aggregates rather than plots one dot per car.
+
+    78 rows inside Washington have no location at all and keep `NaN`.
+    """
+    frame = frame.copy()
+    coordinates = frame["Vehicle Location"].str.extract(
+        VEHICLE_LOCATION_PATTERN
+    )
+    frame["Longitude"] = coordinates["Longitude"].astype(float)
+    frame["Latitude"] = coordinates["Latitude"].astype(float)
+    return frame.drop(columns=["Vehicle Location"])
+
+
 def clean(frame: pd.DataFrame) -> pd.DataFrame:
     """Run every cleaning step, in the one order that is correct.
 
@@ -243,7 +274,8 @@ def clean(frame: pd.DataFrame) -> pd.DataFrame:
     frame = abbreviate_vehicle_type(frame)
     frame = add_vehicle_age(frame)
     frame = simplify_utility(frame)
-    return standardise_city(frame)
+    frame = standardise_city(frame)
+    return parse_vehicle_location(frame)
 
 
 def check_export(frame: pd.DataFrame) -> pd.Series:
@@ -278,6 +310,12 @@ def check_export(frame: pd.DataFrame) -> pd.Series:
             "cities spelled more than one way": len(keys) - keys.nunique(),
             "required fields left empty": int(
                 frame[["County", "City", "Make", "Model"]].isna().sum().sum()
+            ),
+            "coordinates outside Washington": int(
+                sum(
+                    ((frame[axis] < low) | (frame[axis] > high)).sum()
+                    for axis, (low, high) in WASHINGTON_BOUNDS.items()
+                )
             ),
         }
     )

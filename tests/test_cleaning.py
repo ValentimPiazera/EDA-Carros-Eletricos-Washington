@@ -145,6 +145,8 @@ def test_the_pipeline_turns_a_source_row_into_an_export_row():
         "Electric Range",
         "Electric Utility",
         "Vehicle Age",
+        "Longitude",
+        "Latitude",
     ]
     assert cleaned.iloc[0]["Electric Vehicle Type"] == "BEV"
     assert cleaned.iloc[0]["CAFV Status"] == "Eligible"
@@ -157,10 +159,31 @@ def test_the_pipeline_drops_a_row_registered_outside_washington():
     assert cleaning.clean(source_rows(State="CA")).empty
 
 
+def test_the_source_point_becomes_a_longitude_and_a_latitude():
+    cleaned = cleaning.clean(
+        source_rows(**{"Vehicle Location": "POINT (-122.20563 47.76144)"})
+    )
+    assert cleaned.iloc[0]["Longitude"] == -122.20563
+    assert cleaned.iloc[0]["Latitude"] == 47.76144
+    assert "Vehicle Location" not in cleaned.columns
+
+
+def test_a_registration_with_no_point_keeps_empty_coordinates():
+    cleaned = cleaning.clean(source_rows(**{"Vehicle Location": None}))
+    assert cleaned[["Longitude", "Latitude"]].isna().all().all()
+
+
 def test_the_export_check_passes_on_what_the_pipeline_produces():
     counts = cleaning.check_export(cleaning.clean(source_rows()))
     assert counts["rows"] == 1
-    assert counts["columns"] == 10
+    assert counts["columns"] == 12
+
+
+def test_the_export_check_raises_on_a_point_outside_washington():
+    broken = cleaning.clean(source_rows())
+    broken.loc[0, "Longitude"] = -80.0
+    with pytest.raises(AssertionError, match="coordinates outside Washington"):
+        cleaning.check_export(broken)
 
 
 def test_the_export_check_raises_on_a_status_left_without_a_range():
