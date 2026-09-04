@@ -8,7 +8,7 @@ This project cleans, transforms, plots and explores the data on electric vehicle
 
 The data is published by the Washington State Department of Licensing (DOL) and is available on the Washington State open data portal: [data.wa.gov](https://data.wa.gov).
 
-The file used is `Electric_Vehicle_Population_Data_20260122.csv`, holding **271,113 records** of electric vehicles registered in the state. It is a frozen snapshot taken on 2026-01-22. The live file is updated continuously, so refreshing it would silently change every count below.
+The file used is `Electric_Vehicle_Population_Data_20260122.csv`, holding 271,113 records of electric vehicles registered in the state. It is a frozen snapshot taken on 2026-01-22. The live file is updated continuously, so refreshing it would silently change every count below.
 
 ---
 
@@ -95,7 +95,7 @@ CAFV eligibility is not charted. The rule `Electric Range >= 30` explains 100% o
 
 Figure 6 comes first because the column holds two populations rather than one: plug-ins sit below 50 miles with a median of 32, battery-electric cars start at 56 and peak between 200 and 225 with a median of 215. It is also why the quartile test in the cleaning notebook found nothing. Pooled across both types, the fence runs from -248 to 493 miles, wider than the data itself.
 
-Figure 7 answers the question directly and shows what the file cannot answer: the BEV line stops at model year 2020, because from 2021 on the DOL researched the range of 4% of them and never more than 0.3% after that, while plug-in coverage stays at or near 100% throughout. Figure 8 then sets registrations against the median range per model, with a panel per period. Only models with researched coverage appear, so that both axes of a point describe the same vehicles, which is why the 2020 – 2026 panel holds 17% of that window's registrations and, of its 61 models, 59 plug-in hybrids against 2 battery-electric cars.
+Figure 7 answers the question directly and shows what the file cannot answer: the BEV line stops at model year 2020, because from 2021 on the DOL researched the range of 4% of them and never more than 0.3% after that, while plug-in coverage stays at or near 100% throughout. Figure 8 then sets registrations against the median range per model, with a panel per period. Only models with researched coverage appear, so that both axes of a point describe the same vehicles, which is why the 2020–2026 panel holds 17% of that window's registrations and, of its 61 models, 59 plug-in hybrids against 2 battery-electric cars.
 
 ### Part IV — Market Share
 
