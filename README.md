@@ -38,9 +38,11 @@ Both are written to run from the repository root, not from `notebooks/`. Locally
 
 - How has the adoption of EVs evolved across the years?
 - Which makes dominate the fleet?
-- How has battery capacity evolved by model year?
-- Which cities hold the highest density of electric vehicles?
+- How has battery range evolved by model year?
+- Which cities hold the most electric vehicles?
 - What is each manufacturer's real slice of the market, as a percentage?
+
+The file is a stock snapshot of what was registered on 2026-01-22, and it carries no registration date. Every answer below therefore describes the model year of the surviving fleet rather than sales: the early years are eroded by whatever has been scrapped, exported or sold on since, and model year 2026 is three weeks long. City and county counts follow population, not adoption.
 
 ---
 
@@ -50,7 +52,7 @@ Both are written to run from the repository root, not from `notebooks/`. Locally
 2. Rows registered outside Washington State were removed, 649 records in all, which keeps the analysis in focus.
 3. Any `Electric Range` outside what the row's own vehicle type can reach was replaced with NaN, since it cannot be a measurement of that vehicle. One rule removes three things: the `0` the DOL writes for a battery it has not researched, the `1` carried by 32 model year 2025 Mercedes-Benz plug-ins, and the `29` on 8 rows badged BEV, which is the published figure for the plug-in Hyundai IONIQ. Genuinely low ratings survive, such as the 6 miles of the 2012–2015 Prius Plug-in. A status read off a range that went is dropped with it, so every `CAFV Status` in the export is one the range column still accounts for.
 4. Six columns were dropped: `VIN (1-10)`, `State`, `Postal Code`, `Legislative District`, `DOL Vehicle ID` and `2020 Census Tract`. None of them serve the questions above.
-5. `Vehicle Location` is kept and parsed into `Longitude` and `Latitude`, because it is what figure 5 is drawn from. The DOL geocodes each registration to the centroid of its postal area rather than to an address, so 270,454 vehicles sit on 825 distinct points; 78 rows carry no location and keep NaN.
+5. `Vehicle Location` is kept and parsed into `Longitude` and `Latitude`, because it is what figure 5 is drawn from. The DOL geocodes each registration to the centroid of its postal area rather than to an address, so 270,376 vehicles sit on 575 distinct coordinates, which figure 5 draws as 825 bubbles because a coordinate shared by two towns carries one bubble per town; 78 rows carry no location and keep NaN.
 6. `Vehicle Age` was created as `2026 - Model Year`, the vehicle's age in years measured against the year of the snapshot.
 7. Names were standardised. The `Clean Alternative Fuel Vehicle (CAFV) Eligibility` column was renamed to `CAFV Status` and its values shortened, and the vehicle types were abbreviated to `BEV` and `PHEV`. Three cities the source spells two ways (Sedro-Woolley, Silverlake, McCleary) were collapsed onto one spelling each, which is why the fleet covers 491 cities and not the 494 a naive count reports.
 8. `Electric Utility` keeps only the first provider, since the source packs several into one field, and the trailing `- (WA)` and `INC` are stripped from it. `No Known Electric Utility Service` records the absence of a provider rather than a provider, so those 350 rows became NaN, which is why the column holds 19 names and not 20.
@@ -93,7 +95,7 @@ CAFV eligibility is not charted. The rule `Electric Range >= 30` explains 100% o
 
 Figure 6 comes first because the column holds two populations rather than one: plug-ins sit below 50 miles with a median of 32, battery-electric cars start at 56 and peak between 200 and 225 with a median of 215. It is also why the quartile test in the cleaning notebook found nothing. Pooled across both types, the fence runs from -248 to 493 miles, wider than the data itself.
 
-Figure 7 answers the question directly and shows what the file cannot answer: the BEV line stops at model year 2020, because from 2021 on the DOL researched the range of 4% of them and then none at all, while plug-in coverage stays at 100% throughout. Figure 8 then sets registrations against the median range per model, with a panel per period. Only models with researched coverage appear, so that both axes of a point describe the same vehicles, which is why the 2020 – 2026 panel holds 17% of that window's registrations and, of its 61 models, 59 plug-in hybrids against 2 battery-electric cars.
+Figure 7 answers the question directly and shows what the file cannot answer: the BEV line stops at model year 2020, because from 2021 on the DOL researched the range of 4% of them and never more than 0.3% after that, while plug-in coverage stays at or near 100% throughout. Figure 8 then sets registrations against the median range per model, with a panel per period. Only models with researched coverage appear, so that both axes of a point describe the same vehicles, which is why the 2020 – 2026 panel holds 17% of that window's registrations and, of its 61 models, 59 plug-in hybrids against 2 battery-electric cars.
 
 ### Part IV — Market Share
 
